@@ -63,6 +63,22 @@ class GameBoard:
             return True
         return False
 
+    def find_moves(self, player, game_board=None):
+        """
+        Finds possible moves in matrix coordinates.
+        :param player:
+        :param game_board:
+        :return:
+        """
+        moves = list()
+        if game_board is not None:
+            self.board = game_board
+        for i in range(8):
+            for j in range(8):
+                if self.is_valid_placement(self.matrix_to_coordinates((i, j)), player):
+                    moves = moves+[(i, j)]
+        return moves
+
     def has_moves(self, player):
         """
         Check if a player has any legal moves left.

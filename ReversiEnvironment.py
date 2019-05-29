@@ -15,19 +15,26 @@ class ReversiEnvironment:
     def get_board(self):
         return self.game_board.get_board()
 
-    def step(self, coord):
+    def step(self, coord, matrix_coord=False):
         """
         A player makes a move, updating the game state. Returns states. Also returns whether or not a player wins.
-        :param coord: The location to place the piece, in board coordinates
+        :param coord: The location to place the piece.
+        :param matrix_coord: If on, assumes coord is in matrix coordinates.
         :return: Board state, the player's turn and
         game result (-1, 0, 1, 2 if not decided, draw, white won and black won, respectively)
         """
-
-        if self.game_board.place_piece(coord, self.player_turn):
-            if self.player_turn == WHITE:
-                self.player_turn = BLACK
-            else:
-                self.player_turn = WHITE
+        if not matrix_coord:
+            if self.game_board.place_piece(coord, self.player_turn):
+                if self.player_turn == WHITE:
+                    self.player_turn = BLACK
+                else:
+                    self.player_turn = WHITE
+        else:
+            if self.game_board.place_piece(self.game_board.matrix_to_coordinates(coord), self.player_turn):
+                if self.player_turn == WHITE and self.game_board.has_moves(BLACK):
+                    self.player_turn = BLACK
+                elif self.player_turn == BLACK and self.game_board.has_moves(WHITE):
+                    self.player_turn = WHITE
 
         board = self.game_board.get_board()
         game_result = self.check_win()
