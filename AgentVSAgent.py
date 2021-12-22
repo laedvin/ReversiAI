@@ -22,11 +22,10 @@ def play_game():
         else:
             location = black_agent.predict(state)
         board, player_turn, game_result = reversi.step(
-            location,
-            matrix_coord=True
+            location, matrix_coord=True
         )
-        x = location[1]+1
-        y = 8-location[0]
+        x = location[1] + 1
+        y = 8 - location[0]
         board_loc = (x, y)
         # print("Player "+str(player)+" placing on "+str(board_loc))
         if game_result == 0:
@@ -54,5 +53,5 @@ def main():
     print(f"{white_wins}, {black_wins}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

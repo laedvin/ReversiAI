@@ -30,8 +30,8 @@ class GameBoard:
         :return: Board coordinates x, y
         """
         mx, my = matrix_coord
-        x = my+1
-        y = 8-mx
+        x = my + 1
+        y = 8 - mx
 
         return x, y
 
@@ -43,8 +43,8 @@ class GameBoard:
         :return: Matrix coordinates, or matrix indices
         """
         x, y = coord
-        mx = 8-y
-        my = x-1
+        mx = 8 - y
+        my = x - 1
 
         return mx, my
 
@@ -75,8 +75,10 @@ class GameBoard:
             self.board = game_board
         for i in range(8):
             for j in range(8):
-                if self.is_valid_placement(self.matrix_to_coordinates((i, j)), player):
-                    moves = moves+[(i, j)]
+                if self.is_valid_placement(
+                    self.matrix_to_coordinates((i, j)), player
+                ):
+                    moves = moves + [(i, j)]
         return moves
 
     def has_moves(self, player):
@@ -87,7 +89,7 @@ class GameBoard:
         """
         for i in range(8):
             for j in range(8):
-                if self.is_valid_placement((i+1, j+1), player):
+                if self.is_valid_placement((i + 1, j + 1), player):
                     return True
         return False
 
@@ -131,9 +133,12 @@ class GameBoard:
         if x < 1 or y < 1 or x > 8 or y > 7:
             return 0
         else:
-            for i in range(8-y):
-                if self.board[self.coordinates_to_matrix((x, y+i+1))] == color:
-                    return i+1
+            for i in range(8 - y):
+                if (
+                    self.board[self.coordinates_to_matrix((x, y + i + 1))]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_e_piece(self, coord, color):
@@ -148,9 +153,12 @@ class GameBoard:
         if x < 1 or y < 1 or x > 7 or y > 8:
             return 0
         else:
-            for i in range(8-x):
-                if self.board[self.coordinates_to_matrix((x+i+1, y))] == color:
-                    return i+1
+            for i in range(8 - x):
+                if (
+                    self.board[self.coordinates_to_matrix((x + i + 1, y))]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_s_piece(self, coord, color):
@@ -165,9 +173,12 @@ class GameBoard:
         if x < 1 or y < 2 or x > 8 or y > 8:
             return 0
         else:
-            for i in range(y-1):
-                if self.board[self.coordinates_to_matrix((x, y-i-1))] == color:
-                    return i+1
+            for i in range(y - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x, y - i - 1))]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_w_piece(self, coord, color):
@@ -182,61 +193,76 @@ class GameBoard:
         if x < 2 or y < 1 or x > 8 or y > 8:
             return 0
         else:
-            for i in range(x-1):
-                if self.board[self.coordinates_to_matrix((x-i-1,y))] == color:
-                    return i+1
+            for i in range(x - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x - i - 1, y))]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_ne_piece(self, coord, color):
-        """
-
-        """
+        """ """
         x, y = coord
         if x < 1 or y < 1 or x > 7 or y > 7:
             return 0
         else:
-            for i in range(min(8-x, 8-y)):
-                if self.board[self.coordinates_to_matrix((x+i+1, y+i+1))] == color:
-                    return i+1
+            for i in range(min(8 - x, 8 - y)):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y + i + 1))
+                    ]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_se_piece(self, coord, color):
-        """
-
-        """
+        """ """
         x, y = coord
         if x < 1 or y < 2 or x > 7 or y > 8:
             return 0
         else:
-            for i in range(min(8-x, y-1)):
-                if self.board[self.coordinates_to_matrix((x+i+1, y-i-1))] == color:
-                    return i+1
+            for i in range(min(8 - x, y - 1)):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y - i - 1))
+                    ]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_sw_piece(self, coord, color):
-        """
-
-        """
+        """ """
         x, y = coord
         if x < 2 or y < 2 or x > 8 or y > 8:
             return 0
         else:
-            for i in range(min(x-1, y-1)):
-                if self.board[self.coordinates_to_matrix((x-i-1, y-i-1))] == color:
-                    return i+1
+            for i in range(min(x - 1, y - 1)):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y - i - 1))
+                    ]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def closest_nw_piece(self, coord, color):
-        """
-
-        """
+        """ """
         x, y = coord
         if x < 2 or y < 1 or x > 8 or y > 7:
             return 0
         else:
-            for i in range(min(x-1, 8-y)):
-                if self.board[self.coordinates_to_matrix((x-i-1, y+i+1))] == color:
-                    return i+1
+            for i in range(min(x - 1, 8 - y)):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y + i + 1))
+                    ]
+                    == color
+                ):
+                    return i + 1
         return 0
 
     def enclosed_pieces(self, coord, player):
@@ -263,12 +289,20 @@ class GameBoard:
         is_valid = True
         n = self.closest_n_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x, y+i+1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x, y + i + 1))]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x, y+i+1))] == opponent:
-                    north_list = north_list + [list(self.coordinates_to_matrix((x, y+i+1)))]
+                elif (
+                    self.board[self.coordinates_to_matrix((x, y + i + 1))]
+                    == opponent
+                ):
+                    north_list = north_list + [
+                        list(self.coordinates_to_matrix((x, y + i + 1)))
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + north_list
 
@@ -277,12 +311,20 @@ class GameBoard:
         is_valid = True
         n = self.closest_e_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x+i+1, y))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x + i + 1, y))]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x+i+1, y))] == opponent:
-                    east_list = east_list + [list(self.coordinates_to_matrix((x+i+1, y)))]
+                elif (
+                    self.board[self.coordinates_to_matrix((x + i + 1, y))]
+                    == opponent
+                ):
+                    east_list = east_list + [
+                        list(self.coordinates_to_matrix((x + i + 1, y)))
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + east_list
 
@@ -291,12 +333,20 @@ class GameBoard:
         is_valid = True
         n = self.closest_s_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x, y-i-1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x, y - i - 1))]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x, y-i-1))] == opponent:
-                    south_list = south_list + [list(self.coordinates_to_matrix((x, y-i-1)))]
+                elif (
+                    self.board[self.coordinates_to_matrix((x, y - i - 1))]
+                    == opponent
+                ):
+                    south_list = south_list + [
+                        list(self.coordinates_to_matrix((x, y - i - 1)))
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + south_list
 
@@ -305,12 +355,20 @@ class GameBoard:
         is_valid = True
         n = self.closest_w_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x-i-1, y))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[self.coordinates_to_matrix((x - i - 1, y))]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x-i-1, y))] == opponent:
-                    west_list = west_list + [list(self.coordinates_to_matrix((x-i-1, y)))]
+                elif (
+                    self.board[self.coordinates_to_matrix((x - i - 1, y))]
+                    == opponent
+                ):
+                    west_list = west_list + [
+                        list(self.coordinates_to_matrix((x - i - 1, y)))
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + west_list
 
@@ -319,12 +377,26 @@ class GameBoard:
         is_valid = True
         n = self.closest_ne_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x+i+1, y+i+1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y + i + 1))
+                    ]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x+i+1, y+i+1))] == opponent:
-                    northeast_list = northeast_list + [list(self.coordinates_to_matrix((x+i+1, y+i+1)))]
+                elif (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y + i + 1))
+                    ]
+                    == opponent
+                ):
+                    northeast_list = northeast_list + [
+                        list(
+                            self.coordinates_to_matrix((x + i + 1, y + i + 1))
+                        )
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + northeast_list
 
@@ -333,12 +405,26 @@ class GameBoard:
         is_valid = True
         n = self.closest_se_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x+i+1, y-i-1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y - i - 1))
+                    ]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x+i+1, y-i-1))] == opponent:
-                    southeast_list = southeast_list + [list(self.coordinates_to_matrix((x+i+1, y-i-1)))]
+                elif (
+                    self.board[
+                        self.coordinates_to_matrix((x + i + 1, y - i - 1))
+                    ]
+                    == opponent
+                ):
+                    southeast_list = southeast_list + [
+                        list(
+                            self.coordinates_to_matrix((x + i + 1, y - i - 1))
+                        )
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + southeast_list
 
@@ -347,12 +433,26 @@ class GameBoard:
         is_valid = True
         n = self.closest_sw_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x-i-1, y-i-1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y - i - 1))
+                    ]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x-i-1, y-i-1))] == opponent:
-                    southwest_list = southwest_list + [list(self.coordinates_to_matrix((x-i-1, y-i-1)))]
+                elif (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y - i - 1))
+                    ]
+                    == opponent
+                ):
+                    southwest_list = southwest_list + [
+                        list(
+                            self.coordinates_to_matrix((x - i - 1, y - i - 1))
+                        )
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + southwest_list
 
@@ -361,12 +461,26 @@ class GameBoard:
         is_valid = True
         n = self.closest_nw_piece(coord, player)
         if n > 1:
-            for i in range(n-1):
-                if self.board[self.coordinates_to_matrix((x-i-1, y+i+1))] == EMPTY:
+            for i in range(n - 1):
+                if (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y + i + 1))
+                    ]
+                    == EMPTY
+                ):
                     is_valid = False
                     break
-                elif self.board[self.coordinates_to_matrix((x-i-1, y+i+1))] == opponent:
-                    northwest_list = northwest_list + [list(self.coordinates_to_matrix((x-i-1, y+i+1)))]
+                elif (
+                    self.board[
+                        self.coordinates_to_matrix((x - i - 1, y + i + 1))
+                    ]
+                    == opponent
+                ):
+                    northwest_list = northwest_list + [
+                        list(
+                            self.coordinates_to_matrix((x - i - 1, y + i + 1))
+                        )
+                    ]
         if is_valid:
             coordinate_list = coordinate_list + northwest_list
 

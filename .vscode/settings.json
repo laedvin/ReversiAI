@@ -1,3 +1,9 @@
 {
-    "python.pythonPath": "c:\\Users\\Edvin\\anaconda3\\envs\\reversi\\python.exe"
+    "python.pythonPath": "c:\\Users\\Edvin\\anaconda3\\envs\\reversi\\python.exe",
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "79"
+    ],
+    "editor.formatOnSave": true
 }

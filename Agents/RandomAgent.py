@@ -6,6 +6,7 @@ class RandomAgent:
     """
     This agent plays a random move.
     """
+
     def __init__(self, player):
         super(RandomAgent, self).__init__()
         self.board = GameBoard()

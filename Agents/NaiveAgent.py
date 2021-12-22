@@ -6,6 +6,7 @@ class NaiveAgent:
     """
     This agent plays the move that maximizes the immediate score gain.
     """
+
     def __init__(self, player):
         super(NaiveAgent, self).__init__()
         self.board = GameBoard()
@@ -21,8 +22,7 @@ class NaiveAgent:
                 branch_board = GameBoard()
                 branch_board.board = np.copy(state)
                 branch_board.place_piece(
-                    branch_board.matrix_to_coordinates(move),
-                    self.player
+                    branch_board.matrix_to_coordinates(move), self.player
                 )
                 for i in range(8):
                     for j in range(8):

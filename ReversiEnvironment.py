@@ -32,14 +32,15 @@ class ReversiEnvironment:
                     self.player_turn = WHITE
         else:
             if self.game_board.place_piece(
-                self.game_board.matrix_to_coordinates(coord),
-                self.player_turn
+                self.game_board.matrix_to_coordinates(coord), self.player_turn
             ):
-                if (self.player_turn == WHITE and
-                   self.game_board.has_moves(BLACK)):
+                if self.player_turn == WHITE and self.game_board.has_moves(
+                    BLACK
+                ):
                     self.player_turn = BLACK
-                elif (self.player_turn == BLACK and
-                      self.game_board.has_moves(WHITE)):
+                elif self.player_turn == BLACK and self.game_board.has_moves(
+                    WHITE
+                ):
                     self.player_turn = WHITE
 
         board = self.game_board.get_board()
@@ -58,8 +59,9 @@ class ReversiEnvironment:
         :return: -1 if game is unfinished, 0 if draw, 1 if WHITE wins and 2 if
                  BLACK wins
         """
-        if (not self.game_board.has_moves(WHITE) and
-           not self.game_board.has_moves(BLACK)):
+        if not self.game_board.has_moves(
+            WHITE
+        ) and not self.game_board.has_moves(BLACK):
             board = self.game_board.get_board()
             score = 0
             for i in range(8):
