@@ -4,8 +4,8 @@ import numpy as np
 
 class BranchAggregateAgent:
     """
-    This agent plays the move that maximizes the score difference in its next turn,
-    assuming an opponent that plays random moves.
+    This agent plays the move that maximizes the score difference in its next
+    turn, assuming an opponent that plays random moves.
     """
 
     def __init__(self, player):
@@ -70,9 +70,9 @@ class BranchAggregateAgent:
                 else:
                     branch_score = 0
                     for opponent_move in opponent_moves:
-                        score = (
-                            -np.inf
-                        )  # This is the likely future score outcome of the next move the opponent plays
+                        score = -np.inf
+                        # This is the likely future score outcome of the next
+                        # move the opponent plays
 
                         branch_board = GameBoard()
                         branch_board.board = np.copy(branch_state)

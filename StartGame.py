@@ -65,7 +65,8 @@ class GameWindow:
 
     def callback(self, event):
         # Transform to coordinates on the board
-        # The canvas is offset by 2, so x between 0 and 1 is outside of the green background.
+        # The canvas is offset by 2, so x between 0 and 1 is outside of the
+        # green background.
 
         player = self.reversi.player_turn
         coord = np.array([event.x - 2, event.y - 2])
@@ -74,7 +75,8 @@ class GameWindow:
         ):
             print("Outside the board")
         else:
-            # Find the board coordinate and the bounding box of the cell (in canvas coordinates)
+            # Find the board coordinate and the bounding box of the cell (in
+            # canvas coordinates)
             board_coord = np.floor(coord / self.cell_size).astype(int)
             state, player_turn, game_result = self.reversi.step(
                 board_coord, matrix_coord=True

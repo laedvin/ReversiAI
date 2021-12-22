@@ -24,8 +24,10 @@ class GameBoard:
     @staticmethod
     def matrix_to_coordinates(matrix_coord):
         """
-        The game board uses coordinates from 1 to 8. The matrix uses coordinates from 0 to 7, and with different axes.
-        :param matrix_coord: The matrix coordinates, or matrix indices, e.g. matrix_cord = (mx, my)
+        The game board uses coordinates from 1 to 8. The matrix uses
+        coordinates from 0 to 7, and with different axes.
+        :param matrix_coord: The matrix coordinates, or matrix indices, e.g.
+                             matrix_cord = (mx, my)
          with self.board[mx][my].
         :return: Board coordinates x, y
         """
@@ -38,7 +40,8 @@ class GameBoard:
     @staticmethod
     def coordinates_to_matrix(coord):
         """
-        The game board uses coordinates from 1 to 8. The matrix uses coordinates from 0 to 7, and with different axes.
+        The game board uses coordinates from 1 to 8. The matrix uses
+        coordinates from 0 to 7, and with different axes.
         :param coord: The board coordinates
         :return: Matrix coordinates, or matrix indices
         """
@@ -123,11 +126,14 @@ class GameBoard:
 
     def closest_n_piece(self, coord, color):
         """
-        For a given board coordinate, find the closest northwards piece of the desired color.
+        For a given board coordinate, find the closest northwards piece of the
+        desired color.
         :param coord: The board coordinate
         :param color: The color of the piece
-        :return: The number of squares until the piece of desired color. A piece directly to the north of the
-        given coordinate has a distance 1. A distance of 0 means there are no correct pieces to the north.
+        :return: The number of squares until the piece of desired color. A
+                 piece directly to the north of the given coordinate has a
+                 distance 1. A distance of 0 means there are no correct
+                 pieces to the north.
         """
         x, y = coord
         if x < 1 or y < 1 or x > 8 or y > 7:
@@ -143,11 +149,14 @@ class GameBoard:
 
     def closest_e_piece(self, coord, color):
         """
-        For a given board coordinate, find the closest eastwards piece of the desired color.
+        For a given board coordinate, find the closest eastwards piece of the
+        desired color.
         :param coord: The board coordinate
         :param color: The color of the piece
-        :return: The number of squares until the piece of desired color. A piece directly to the east of the
-        given coordinate has a distance 1. A distance of 0 means there are no correct pieces to the east.
+        :return: The number of squares until the piece of desired color. A
+                 piece directly to the east of the given coordinate has a
+                 distance 1. A distance of 0 means there are no correct
+                 pieces to the east.
         """
         x, y = coord
         if x < 1 or y < 1 or x > 7 or y > 8:
@@ -163,11 +172,14 @@ class GameBoard:
 
     def closest_s_piece(self, coord, color):
         """
-        For a given board coordinate, find the closest southwards piece of the desired color.
+        For a given board coordinate, find the closest southwards piece of the
+        desired color.
         :param coord: The board coordinate
         :param color: The color of the piece
-        :return: The number of squares until the piece of desired color. A piece directly to the south of the
-        given coordinate has a distance 1. A distance of 0 means there are no correct pieces to the south.
+        :return: The number of squares until the piece of desired color. A
+                 piece directly to the south of the given coordinate has a
+                 distance 1. A distance of 0 means there are no correct
+                 pieces to the south.
         """
         x, y = coord
         if x < 1 or y < 2 or x > 8 or y > 8:
@@ -183,11 +195,14 @@ class GameBoard:
 
     def closest_w_piece(self, coord, color):
         """
-        For a given board coordinate, find the closest westwards piece of the desired color.
+        For a given board coordinate, find the closest westwards piece of the
+        desired color.
         :param coord: The board coordinate
         :param color: The color of the piece
-        :return: The number of squares until the piece of desired color. A piece directly to the west of the
-        given coordinate has a distance 1. A distance of 0 means there are no correct pieces to the west.
+        :return: The number of squares until the piece of desired color. A
+                 piece directly to the west of the given coordinate has a
+                 distance 1. A distance of 0 means there are no correct
+                 pieces to the west.
         """
         x, y = coord
         if x < 2 or y < 1 or x > 8 or y > 8:
