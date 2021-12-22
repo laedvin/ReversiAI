@@ -17,11 +17,12 @@ class ReversiEnvironment:
 
     def step(self, coord, matrix_coord=False):
         """
-        A player makes a move, updating the game state. Returns states. Also returns whether or not a player wins.
+        A player makes a move, updating the game state. Returns states. Also
+        returns whether or not a player wins.
         :param coord: The location to place the piece.
-        :param matrix_coord: If on, assumes coord is in matrix coordinates.
-        :return: Board state, the player's turn and
-        game result (-1, 0, 1, 2 if not decided, draw, white won and black won, respectively)
+        :param matrix_coord: If True, assumes coord is in matrix coordinates.
+        :return: Board state, the player's turn and game result (-1, 0, 1, 2 if
+                 not decided, draw, white won and black won,respectively)
         """
         if not matrix_coord:
             if self.game_board.place_piece(coord, self.player_turn):
@@ -30,10 +31,15 @@ class ReversiEnvironment:
                 else:
                     self.player_turn = WHITE
         else:
-            if self.game_board.place_piece(self.game_board.matrix_to_coordinates(coord), self.player_turn):
-                if self.player_turn == WHITE and self.game_board.has_moves(BLACK):
+            if self.game_board.place_piece(
+                self.game_board.matrix_to_coordinates(coord),
+                self.player_turn
+            ):
+                if (self.player_turn == WHITE and
+                   self.game_board.has_moves(BLACK)):
                     self.player_turn = BLACK
-                elif self.player_turn == BLACK and self.game_board.has_moves(WHITE):
+                elif (self.player_turn == BLACK and
+                      self.game_board.has_moves(WHITE)):
                     self.player_turn = WHITE
 
         board = self.game_board.get_board()
@@ -47,10 +53,13 @@ class ReversiEnvironment:
 
     def check_win(self):
         """
-        Game ends if neither player can place a piece. Number of WHITE vs BLACK pieces gets counted.
-        :return: -1 if game is unfinished, 0 if draw , 1 if WHITE wins and 2 if BLACK wins
+        Game ends if neither player can place a piece. Number of WHITE vs BLACK
+        pieces get counted.
+        :return: -1 if game is unfinished, 0 if draw, 1 if WHITE wins and 2 if
+                 BLACK wins
         """
-        if not self.game_board.has_moves(WHITE) and not self.game_board.has_moves(BLACK):
+        if (not self.game_board.has_moves(WHITE) and
+           not self.game_board.has_moves(BLACK)):
             board = self.game_board.get_board()
             score = 0
             for i in range(8):
@@ -67,5 +76,3 @@ class ReversiEnvironment:
                 return 0
         else:
             return -1
-
-
