@@ -1,5 +1,5 @@
 import numpy as np
-from GameBoard import GameBoard
+from reversi.game_board import GameBoard
 
 WHITE = 1
 BLACK = 2
@@ -19,13 +19,22 @@ class ReversiEnvironment:
         """
         A player makes a move, updating the game state. Returns states. Also
         returns whether or not a player wins.
-        :param coord: The location to place the piece.
-        :param matrix_coord: If True, assumes coord is in matrix coordinates.
-        :return: Board state, the player's turn and game result (-1, 0, 1, 2 if
-                 not decided, draw, white won and black won,respectively)
+
+        Args:
+            coord: The location to place the piece.
+            matrix_coord: If True, assumes coord is in matrix coordinates.
+
+        Returns:
+            stepped: False if no change in board state, else True
+            board: Board state
+            player_turn: the player's turn
+            game_result: game result (-1, 0, 1, 2 if not decided, draw, white
+                         won and black won, respectively)
         """
+        stepped = False
         if not matrix_coord:
             if self.game_board.place_piece(coord, self.player_turn):
+                stepped = True
                 if self.player_turn == WHITE:
                     self.player_turn = BLACK
                 else:
@@ -34,6 +43,7 @@ class ReversiEnvironment:
             if self.game_board.place_piece(
                 self.game_board.matrix_to_coordinates(coord), self.player_turn
             ):
+                stepped = True
                 if self.player_turn == WHITE and self.game_board.has_moves(
                     BLACK
                 ):
@@ -46,10 +56,11 @@ class ReversiEnvironment:
         board = self.game_board.get_board()
         game_result = self.check_win()
 
-        return board, self.player_turn, game_result
+        return stepped, board, self.player_turn, game_result
 
     def reset(self):
         self.game_board.reset()
+        self.player_turn = WHITE
         # TODO: Reset any self variables in ReversiEnvironment
 
     def check_win(self):

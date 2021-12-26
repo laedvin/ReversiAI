@@ -1,12 +1,15 @@
 import tkinter as tk
 import sys
+import time
 import numpy as np
-from ReversiEnvironment import ReversiEnvironment
-from Agents.RandomAgent import RandomAgent
+from reversi.reversi_environment import ReversiEnvironment
+from agents.random_agent import RandomAgent
 
 
 WHITE = 1
 BLACK = 2
+
+MAP_NAME = {"1": "WHITE", "2": "BLACK"}
 
 
 class GameWindow:
@@ -32,6 +35,7 @@ class GameWindow:
                 )
 
         state = self.reversi.get_board()
+        print(f"{MAP_NAME['1']} to play")
         self.update_game_state(state)
 
         self.canvas.pack()
@@ -68,7 +72,31 @@ class GameWindow:
         # The canvas is offset by 2, so x between 0 and 1 is outside of the
         # green background.
 
-        player = self.reversi.player_turn
+        stepped, next_player, game_result = self.player_place_piece(event)
+        if game_result == 0:
+            print("It's a draw!")
+        elif game_result == 1:
+            print("WHITE wins!")
+        elif game_result == 2:
+            print("BLACK wins!")
+        elif stepped:
+            print(f"{MAP_NAME[str(next_player)]} to play")
+
+    def player_place_piece(self, event):
+        """Places a piece depending on the player's mouse click.
+
+        Converts the mouse coordinate to board coordinate.
+
+        Args:
+            event: the callback event
+
+        Returns: (stepped, next_player, game_result)
+
+        """
+        stepped = False
+        state = None
+        next_player = None
+        game_result = -1
         coord = np.array([event.x - 2, event.y - 2])
         if (coord[0] > 8 * self.cell_size - 1 or coord[0] < 0) or (
             coord[1] > 8 * self.cell_size - 1 or coord[1] < 0
@@ -78,16 +106,11 @@ class GameWindow:
             # Find the board coordinate and the bounding box of the cell (in
             # canvas coordinates)
             board_coord = np.floor(coord / self.cell_size).astype(int)
-            state, player_turn, game_result = self.reversi.step(
+            stepped, state, next_player, game_result = self.reversi.step(
                 board_coord, matrix_coord=True
             )
             self.update_game_state(state)
-            if game_result == 0:
-                print("It's a draw!")
-            elif game_result == 1:
-                print("WHITE wins!")
-            elif game_result == 2:
-                print("BLACK wins!")
+        return stepped, next_player, game_result
 
 
 def main():

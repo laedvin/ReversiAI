@@ -25,7 +25,7 @@ def main():
             y = int(split_list[1])
             location = (x, y)
             print(location)
-        board, player_turn, game_result = reversi.step(location)
+        _, _, _, game_result = reversi.step(location)
         if game_result == 0:
             print("It's a draw!")
             playing = False

@@ -8,11 +8,7 @@ EMPTY = 0
 class GameBoard:
     def __init__(self):
         super(GameBoard, self).__init__()
-        self.board = np.zeros((8, 8))
-        self.board[3][3] = WHITE
-        self.board[4][4] = WHITE
-        self.board[3][4] = BLACK
-        self.board[4][3] = BLACK
+        self.reset()
 
     def reset(self):
         self.board = np.zeros((8, 8))
@@ -508,3 +504,7 @@ class GameBoard:
         """
 
         return np.copy(self.board)
+
+    def calculate_score(self, input_board=None):
+        """Calculate the score given the input board"""
+        pass
