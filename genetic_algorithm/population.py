@@ -7,6 +7,9 @@ from agents.simple_nn_agent import SimpleNNAgent
 from agents.random_agent import RandomAgent
 
 
+NUM_CPUS = cpu_count()
+
+
 class Population:
     def __init__(self, config, initial_elo=1000, existing_population=None):
         super(Population, self).__init__()
@@ -36,7 +39,7 @@ class Population:
         """
         genomes = [individual["genome"] for individual in self.pop]
         individual_ids = [individual["id"] for individual in self.pop] * n
-        with Pool() as pool:
+        with Pool(NUM_CPUS) as pool:
             result = pool.starmap(
                 self.play_match_vs_random,
                 [(id, genomes[id]) for id in individual_ids],
@@ -77,7 +80,7 @@ class Population:
             pairings += partial_pairings
 
         # Play a round robin round
-        with Pool() as pool:
+        with Pool(NUM_CPUS) as pool:
             result = pool.starmap(
                 self.play_match,
                 [(a, b, genomes[a], genomes[b]) for a, b in pairings],
@@ -138,6 +141,17 @@ class Population:
             self.pop[id_b]["losses"] += score_a
             self.pop[id_b][color_b]["wins"] += 1 - score_a
             self.pop[id_b][color_b]["losses"] += score_a
+
+    def update_genome(self, genomes):
+        """Updates the genome of every individual
+
+        Args:
+            genomes: A list of genomes matching the pop size
+        """
+        if not (len(genomes) == self.config["pop_size"]):
+            raise ValueError("Number of genomes and individuals don't match")
+        for idx, genome in enumerate(genomes):
+            self.pop[idx]["genome"] = genome
 
     @staticmethod
     def calculate_elo(elo_x, elo_y, s_x, k_factor=20):

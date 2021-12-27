@@ -8,7 +8,7 @@ class NaiveAgent(BasicAgent):
     This agent plays the move that maximizes the immediate score gain.
     """
 
-    def __init__(self, player):
+    def __init__(self, player=1):
         super(NaiveAgent, self).__init__(player)
 
     def predict(self, state):

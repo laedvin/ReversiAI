@@ -10,8 +10,9 @@ def main():
             join(dirname(__file__), "genetic_algorithm/lineages/test_lineage/")
         )
     )
-    lineage.advance_generation()
-    print(f"Saved generation {lineage.current_gen}")
+    while lineage.current_gen < 200:
+        lineage.advance_generation()
+        print(f"Saved generation {lineage.current_gen}")
 
 
 if __name__ == "__main__":

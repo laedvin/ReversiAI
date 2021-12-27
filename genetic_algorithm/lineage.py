@@ -1,8 +1,11 @@
 import os
 from os.path import abspath, join
 import json
+import itertools
+import random
 from pathlib import Path
 import glob
+from timeit import default_timer as timer
 import numpy as np
 import deepdish as dd
 from genetic_algorithm.population import Population
@@ -55,11 +58,12 @@ class Lineage:
         else:
             self.config = {
                 "pop_size": 50,
-                "mutation_rate": 1,
+                "mutation_rate": 0.02,
+                "mutation_var": 0.1,
                 "crossover": 1,
                 "round_robin_rounds": 2,
                 "placement_matches": 10,
-                "elo_attractiveness": 2,
+                "elo_attractiveness": 5,
                 "k_factor_rr": 20,  # Round robin
                 "k_factor_p": 40,  # Placement
                 "random_agent_elo": 500,
@@ -99,36 +103,75 @@ class Lineage:
         return Population(self.config, existing_population=individuals)
 
     def determine_population_elo(self):
+        start = timer()
         print("Performing placement matches")
         self.current_pop.placement_matches(self.config["placement_matches"])
         print("Performing round robin matches")
         self.current_pop.round_robin(self.config["round_robin_rounds"])
+        end = timer()
+        print(f"Elo determination took {end-start} seconds")
 
     def advance_generation(self):
         average_elo = np.mean(
             [individual["elo"] for individual in self.current_pop.pop]
         )
         initial_elo = (average_elo + self.config["random_agent_elo"]) / 2
-        self.current_gen += 1
+
         mating_pairs = self.select_mating_pairs()
         new_genomes = [self.reproduce(*pair) for pair in mating_pairs]
+        new_genomes = list(itertools.chain(*new_genomes))
+        new_genomes = new_genomes[0 : self.config["pop_size"]]
 
-        print(f"Simulating generation {self.current_gen}")
+        self.current_gen += 1
+
+        print(f"Creating new generation: {self.current_gen}")
         self.current_pop = Population(self.config, initial_elo=initial_elo)
-        1 / 0
+        self.current_pop.update_genome(new_genomes)
+
         self.determine_population_elo()
+        elos = [individual["elo"] for individual in self.current_pop.pop]
+        average_elo = np.mean(elos)
+        print(
+            f"Average Elo for generation {self.current_gen} is {average_elo}"
+        )
+        print(
+            f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}"
+        )
         self.save_current_generation()
 
     def reproduce(self, id_a, id_b):
-        """Generates the genome of a child from two parents
+        """Generates the genome of two children from two parents
 
         Args:
             id_a: id of the first parent
             id_b: id of the second parent
 
-        Retunrs: The genome of the child
+        Returns: The genome of the child
         """
-        return self.current_pop[id_a]["genome"]
+        # TODO: n crossover points
+        genome_a = self.current_pop.pop[id_a]["genome"]
+        genome_b = self.current_pop.pop[id_b]["genome"]
+
+        crossover_point = random.randint(0, len(genome_a) - 1)
+
+        offspring_a = np.concatenate(
+            (genome_a[0:crossover_point], genome_b[crossover_point:])
+        )
+        offspring_b = np.concatenate(
+            (genome_b[0:crossover_point], genome_a[crossover_point:])
+        )
+
+        for idx, (a, b) in enumerate(zip(offspring_a, offspring_b)):
+            if random.random() < self.config["mutation_rate"]:
+                offspring_a[idx] = a + random.gauss(
+                    0, np.sqrt(self.config["mutation_var"])
+                )
+            if random.random() < self.config["mutation_rate"]:
+                offspring_b[idx] = b + random.gauss(
+                    0, np.sqrt(self.config["mutation_var"])
+                )
+
+        return offspring_a, offspring_b
 
     def select_mating_pairs(self):
         """Select which individuals should mate
@@ -151,7 +194,9 @@ class Lineage:
         z = np.sum(np.exp(beta * elos))
         p = np.exp(beta * elos) / z
 
-        first_halfs = np.random.choice(ids, ids.size, p=p)
+        first_halfs = np.random.choice(
+            ids, int(np.ceil(self.config["pop_size"] / 2)), p=p
+        )
         pairs = []
         for first_half in first_halfs:
             mask = np.ones(ids.size, dtype=bool)
