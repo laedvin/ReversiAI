@@ -9,7 +9,7 @@ class BranchAggregateAgent(BasicAgent):
     turn, assuming an opponent that plays random moves.
     """
 
-    def __init__(self, player):
+    def __init__(self, player=1):
         super(BranchAggregateAgent, self).__init__(player)
 
     def predict(self, state):

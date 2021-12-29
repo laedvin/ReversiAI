@@ -13,22 +13,26 @@ class NaiveAgent(BasicAgent):
 
     def predict(self, state):
         moves = self.board.find_moves(self.own_player, state)
-        if len(moves) > 0:
-            best_move = moves[int(np.random.uniform(0, len(moves), 1)[0])]
-            best_score = 0
-            for move in moves:
-                score = 0
-                branch_board = GameBoard()
-                branch_board.board = np.copy(state)
-                branch_board.place_piece(
-                    branch_board.matrix_to_coordinates(move), self.own_player
-                )
-                for i in range(8):
-                    for j in range(8):
-                        if branch_board.board[i][j] == self.own_player:
-                            score += 1
-                if score > best_score:
-                    best_score = score
-                    best_move = move
-
-            return best_move
+        best_move_candidates = moves[
+            int(np.random.uniform(0, len(moves), 1)[0])
+        ]
+        best_score = 0
+        for move in moves:
+            score = 0
+            branch_board = GameBoard()
+            branch_board.board = np.copy(state)
+            branch_board.place_piece(
+                branch_board.matrix_to_coordinates(move), self.own_player
+            )
+            for i in range(8):
+                for j in range(8):
+                    if branch_board.board[i][j] == self.own_player:
+                        score += 1
+            if score > best_score:
+                best_score = score
+                best_move_candidates = [move]
+            elif score == best_score:
+                best_move_candidates += [move]
+        return best_move_candidates[
+            int(np.random.uniform(0, len(best_move_candidates), 1)[0])
+        ]

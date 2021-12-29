@@ -2,9 +2,13 @@ import itertools
 import random
 import numpy as np
 from multiprocessing import Pool, cpu_count
+
+
 from reversi.reversi_environment import ReversiEnvironment
+from reversi.gameplay_utils import play_game
 from agents.simple_nn_agent import SimpleNNAgent
 from agents.random_agent import RandomAgent
+from agents.naive_agent import NaiveAgent
 
 
 NUM_CPUS = cpu_count()
@@ -41,14 +45,14 @@ class Population:
         individual_ids = [individual["id"] for individual in self.pop] * n
         with Pool(NUM_CPUS) as pool:
             result = pool.starmap(
-                self.play_match_vs_random,
+                self.play_match_vs_naive,
                 [(id, genomes[id]) for id in individual_ids],
             )
         for id, score_as_white, score_as_black in result:
             score = (score_as_white + 1 - score_as_black) / 2
             elo_delta, _ = self.calculate_elo(
                 self.pop[id]["elo"],
-                self.config["random_agent_elo"],
+                self.config["placement_agent_elo"],
                 score,
                 k_factor=self.config["k_factor_p"],
             )
@@ -183,48 +187,13 @@ class Population:
         return elo_x_delta, elo_y_delta
 
     @staticmethod
-    def play_game(white, black):
-        """White agent plays against Black agent.
-
-        Args:
-            white: The white agent
-            black: The black agent
-
-        Returns: 1 if white wins, 0.5 if draw, 0 if black wins
-
-        """
-        white.set_player(1)
-        black.set_player(2)
-        reversi = ReversiEnvironment()
-        playing = True
-
-        while playing:
-            player = reversi.player_turn
-            state = reversi.get_board()
-            if player == 1:
-                location = white.predict(state)
-            else:
-                location = black.predict(state)
-            _, _, _, game_result = reversi.step(location, matrix_coord=True)
-            if game_result == 0:
-                playing = False
-                score = 0.5  # Draw
-            elif game_result == 1:
-                playing = False
-                score = 1  # White wins
-            elif game_result == 2:
-                playing = False
-                score = 0  # Black wins
-        return score
-
-    @staticmethod
     def play_match(id_a, id_b, genome_a, genome_b):
         agent_a = SimpleNNAgent()
         agent_b = SimpleNNAgent()
         agent_a.set_genome(genome_a)
         agent_b.set_genome(genome_b)
-        score_a = Population.play_game(agent_a, agent_b)
-        score_b = Population.play_game(agent_b, agent_a)
+        score_a = play_game(agent_a, agent_b)
+        score_b = play_game(agent_b, agent_a)
         return id_a, id_b, score_a, score_b
 
     @staticmethod
@@ -232,8 +201,17 @@ class Population:
         agent_a = SimpleNNAgent()
         agent_b = RandomAgent()
         agent_a.set_genome(genome)
-        score_a = Population.play_game(agent_a, agent_b)
-        score_b = Population.play_game(agent_b, agent_a)
+        score_a = play_game(agent_a, agent_b)
+        score_b = play_game(agent_b, agent_a)
+        return id, score_a, score_b
+
+    @staticmethod
+    def play_match_vs_naive(id, genome):
+        agent_a = SimpleNNAgent()
+        agent_b = NaiveAgent()
+        agent_a.set_genome(genome)
+        score_a = play_game(agent_a, agent_b)
+        score_b = play_game(agent_b, agent_a)
         return id, score_a, score_b
 
     @staticmethod
@@ -243,7 +221,6 @@ class Population:
         Sets their genome and Elo (which is to be used as fitness)
 
         """
-        print("Attempting to initialize population")
         # Hidden layer 1
         # He Weight initialization for ReLU
         hidden_1_w = np.random.randn(pop_size, 32 * 65) * np.sqrt(2 / 65)

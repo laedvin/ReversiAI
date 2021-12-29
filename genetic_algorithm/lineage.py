@@ -51,7 +51,7 @@ class Lineage:
         self.config = config
         if self.config is not None:
             with open(join(path, "config.json"), "w") as f:
-                json.dump(self.config, f)
+                json.dump(self.config, f, indent=2)
         elif os.path.isfile(join(path, "config.json")):
             with open(join(path, "config.json"), "r") as f:
                 self.config = json.load(f)
@@ -60,13 +60,14 @@ class Lineage:
                 "pop_size": 50,
                 "mutation_rate": 0.02,
                 "mutation_var": 0.1,
-                "crossover": 1,
+                "crossover_rate": 0.9,
                 "round_robin_rounds": 2,
-                "placement_matches": 10,
-                "elo_attractiveness": 5,
+                "placement_matches": 50,
+                "adjustment_matches": 50,
+                "elo_attractiveness": 20,
                 "k_factor_rr": 20,  # Round robin
                 "k_factor_p": 40,  # Placement
-                "random_agent_elo": 500,
+                "placement_agent_elo": 500,
                 "elo_floor": 100,
             }
             with open(join(path, "config.json"), "w") as f:
@@ -82,7 +83,7 @@ class Lineage:
         else:
             print("Creating generation 0")
             self.current_gen = 0
-            initial_elo = self.config["random_agent_elo"]
+            initial_elo = self.config["placement_agent_elo"]
             self.current_pop = Population(self.config, initial_elo=initial_elo)
             self.determine_population_elo()
             self.save_current_generation()
@@ -108,6 +109,8 @@ class Lineage:
         self.current_pop.placement_matches(self.config["placement_matches"])
         print("Performing round robin matches")
         self.current_pop.round_robin(self.config["round_robin_rounds"])
+        print("Performing adjustment matches")
+        self.current_pop.placement_matches(self.config["adjustment_matches"])
         end = timer()
         print(f"Elo determination took {end-start} seconds")
 
@@ -115,7 +118,7 @@ class Lineage:
         average_elo = np.mean(
             [individual["elo"] for individual in self.current_pop.pop]
         )
-        initial_elo = (average_elo + self.config["random_agent_elo"]) / 2
+        initial_elo = (average_elo + self.config["placement_agent_elo"]) / 2
 
         mating_pairs = self.select_mating_pairs()
         new_genomes = [self.reproduce(*pair) for pair in mating_pairs]
@@ -152,14 +155,18 @@ class Lineage:
         genome_a = self.current_pop.pop[id_a]["genome"]
         genome_b = self.current_pop.pop[id_b]["genome"]
 
-        crossover_point = random.randint(0, len(genome_a) - 1)
+        if random.random() < self.config["crossover_rate"]:
+            crossover_point = random.randint(0, len(genome_a) - 1)
 
-        offspring_a = np.concatenate(
-            (genome_a[0:crossover_point], genome_b[crossover_point:])
-        )
-        offspring_b = np.concatenate(
-            (genome_b[0:crossover_point], genome_a[crossover_point:])
-        )
+            offspring_a = np.concatenate(
+                (genome_a[0:crossover_point], genome_b[crossover_point:])
+            )
+            offspring_b = np.concatenate(
+                (genome_b[0:crossover_point], genome_a[crossover_point:])
+            )
+        else:
+            offspring_a = np.copy(genome_a)
+            offspring_b = np.copy(genome_b)
 
         for idx, (a, b) in enumerate(zip(offspring_a, offspring_b)):
             if random.random() < self.config["mutation_rate"]:
@@ -193,6 +200,8 @@ class Lineage:
         beta = np.log(10) / 400 * elo_attractiveness
         z = np.sum(np.exp(beta * elos))
         p = np.exp(beta * elos) / z
+
+        print(f"Mating probability:\n{p}")
 
         first_halfs = np.random.choice(
             ids, int(np.ceil(self.config["pop_size"] / 2)), p=p
