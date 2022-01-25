@@ -3,8 +3,6 @@ import random
 import numpy as np
 from multiprocessing import Pool, cpu_count
 
-
-from reversi.reversi_environment import ReversiEnvironment
 from reversi.gameplay_utils import play_game
 from agents.simple_nn_agent import SimpleNNAgent
 from agents.random_agent import RandomAgent

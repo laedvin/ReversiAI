@@ -1,4 +1,4 @@
-from ReversiEnvironment import ReversiEnvironment
+from reversi.reversi_environment import ReversiEnvironment
 
 WHITE = 1
 BLACK = 2
