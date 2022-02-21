@@ -2,28 +2,28 @@ import numpy as np
 from timeit import default_timer as timer
 from multiprocessing import Pool, cpu_count
 
-from reversi.reversi_environment import ReversiEnvironment
 from reversi.gameplay_utils import play_match
 from agents.random_agent import RandomAgent
 from agents.naive_agent import NaiveAgent
 from agents.branch_aggregate_agent import BranchAggregateAgent
 from agents.simple_nn_agent import SimpleNNAgent
+from agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
 from genetic_algorithm.population import Population
 
 
 WHITE = 1
 BLACK = 2
-NUM_CPUS = cpu_count()
+NUM_CPUS = 2
 
 
 def main():
-    player_a = NaiveAgent()
-    player_b = NaiveAgent()
+    player_a = ResidualTowerPolicyAgent(use_cuda=False)
+    player_b = ResidualTowerPolicyAgent(use_cuda=False)
     pa_elo = 500
     pb_elo = 500
     pa_wins = 0
     pb_wins = 0
-    matches = 1000
+    matches = 100
 
     start = timer()
     with Pool(NUM_CPUS) as pool:

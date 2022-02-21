@@ -24,16 +24,18 @@ class NDepthSearchAgent(BasicAgent):
         Args: state of the board
         Returns: The best possible move if it exists, or None
         """
-        self.board.board = state
+        self.game_board.board = state
         best_move = None
-        moves = self.board.find_moves(self.own_player, state)
+        moves = self.game_board.find_moves(self.own_player, state)
         if len(moves) == 1:
             best_move = moves[0]
         elif len(moves) > 1:
             best_move = moves[0]
             best_score = -np.inf
             for move in moves:
-                score = self.recursive_search(self.board, move, self.depth)
+                score = self.recursive_search(
+                    self.game_board, move, self.depth
+                )
                 if score > best_score:
                     best_score = score
                     best_move = move

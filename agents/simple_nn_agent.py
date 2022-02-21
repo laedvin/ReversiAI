@@ -27,7 +27,7 @@ class SimpleNNAgent(BasicAgent):
         """
         # Prepare input to network
         board = np.copy(board)
-        self.board.board = np.copy(board)
+        self.game_board.board = np.copy(board)
         board[board.astype(bool)] = board[board.astype(bool)] * 2 - 3
         board_flattened = torch.flatten(torch.from_numpy(board))
         x = torch.cat(
@@ -39,7 +39,7 @@ class SimpleNNAgent(BasicAgent):
 
         # Process output from network
         filter = np.full((8, 8), -np.inf)
-        moves = self.board.find_moves(self.own_player)
+        moves = self.game_board.find_moves(self.own_player)
         for move in moves:
             filter[move] = 0
         out = out + filter.flatten()
@@ -73,7 +73,7 @@ class SimpleNNAgent(BasicAgent):
         """
         # Prepare input to network
         board = np.copy(board)
-        self.board.board = np.copy(board)
+        self.game_board.board = np.copy(board)
         board[board.astype(bool)] = board[board.astype(bool)] * 2 - 3
         board_flattened = torch.flatten(torch.from_numpy(board))
         x = torch.cat(
@@ -84,7 +84,7 @@ class SimpleNNAgent(BasicAgent):
 
         # Process output from network
         filter = np.full((8, 8), -np.inf)
-        moves = self.board.find_moves(self.own_player)
+        moves = self.game_board.find_moves(self.own_player)
         for move in moves:
             filter[move] = 0
         out_filtered = out + torch.from_numpy(filter.flatten())

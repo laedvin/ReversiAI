@@ -12,7 +12,7 @@ class NaiveAgent(BasicAgent):
         super(NaiveAgent, self).__init__(player)
 
     def predict(self, state):
-        moves = self.board.find_moves(self.own_player, state)
+        moves = self.game_board.find_moves(self.own_player, state)
         best_move_candidates = moves[
             int(np.random.uniform(0, len(moves), 1)[0])
         ]

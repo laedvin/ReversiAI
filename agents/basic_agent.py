@@ -4,7 +4,7 @@ from reversi.game_board import GameBoard
 class BasicAgent:
     def __init__(self, player=1):
         super(BasicAgent, self).__init__()
-        self.board = GameBoard()
+        self.game_board = GameBoard()
         self.own_player = None
         self.opponent = None
         self.set_player(player)

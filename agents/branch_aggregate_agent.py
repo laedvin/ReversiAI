@@ -13,7 +13,7 @@ class BranchAggregateAgent(BasicAgent):
         super(BranchAggregateAgent, self).__init__(player)
 
     def predict(self, state):
-        moves = self.board.find_moves(self.own_player, state)
+        moves = self.game_board.find_moves(self.own_player, state)
         if len(moves) > 0:
             best_move = moves[int(np.random.uniform(0, len(moves), 1)[0])]
             best_score = -np.inf
