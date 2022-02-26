@@ -5,7 +5,7 @@ Uses a NN to predict where to place next piece
 Use some kind of recursive algorithm to minmax? No, because it doesn't have a value head to calculate win probability. If it had, the policy head would have been used to pick the N "immediate" best moves so that the minmaxing could be sped up.
 
 # Network design
-Convolutional neural network, based on AlphaGo Zero. All convolutional networks have stride 1 and a padding such that the height and width is maintained.
+Convolutional neural network, based on AlphaGo Zero. All convolutional networks have stride 1 and a padding such that the height and width is maintained. 2 residual blocks.
 
 ## Residual tower:
 
@@ -39,6 +39,6 @@ This output could then be put through a softmax if we want a non-greedy policy.
 # Genetic mapping
 The number of parameters in a 2d convolutional network is (n * m * l + 1) * k, where n and m are the kernel sizes, l is the number of filters and k is the number of feature map outputs. Each conv in the Residual block therefore have 9248.
 
-Thus, with 5 Residual blocks the whole ResidualTowerPolicy will have (3 * 3 + 3 + 1) * 32 + 5 * 2 * 9248 + (1 * 1 * 32 + 1) * 2 + (128 + 1) * 64 = 101 218 parameters.
+Thus, with 2 Residual blocks the whole ResidualTowerPolicy will have (3 * 3 + 3 + 1) * 32 + 2 * 2 * 9248 + (1 * 1 * 32 + 1) * 2 + (128 + 1) * 64 = 45 730 parameters.
 
 For comparison, the SimpleNN with 2 hidden layers that I've used previously has (65 + 1) * 32 + (32 + 1) * 32 + (32 + 1) * 64 = 5280 parameters.

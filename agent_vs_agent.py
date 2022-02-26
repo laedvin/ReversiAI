@@ -13,23 +13,23 @@ from genetic_algorithm.population import Population
 
 WHITE = 1
 BLACK = 2
-NUM_CPUS = 2
+NUM_CPUS = 1
 
 
 def main():
-    player_a = ResidualTowerPolicyAgent(use_cuda=False)
-    player_b = ResidualTowerPolicyAgent(use_cuda=False)
+    player_a = ResidualTowerPolicyAgent()
+    player_b = ResidualTowerPolicyAgent()
     pa_elo = 500
     pb_elo = 500
     pa_wins = 0
     pb_wins = 0
-    matches = 100
+    matches = 50
 
     start = timer()
     with Pool(NUM_CPUS) as pool:
         result = pool.starmap(
             play_match,
-            [(player_a, player_b) for i in range(matches)],
+            [(player_a, player_b)] * matches,
         )
     for score_a, score_b in result:
         final_score = (score_a + (1 - score_b)) / 2

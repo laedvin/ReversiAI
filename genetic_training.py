@@ -1,5 +1,4 @@
 from os.path import abspath, join, dirname
-import deepdish as dd
 
 from genetic_algorithm.lineage import Lineage
 
@@ -7,7 +6,7 @@ from genetic_algorithm.lineage import Lineage
 def main():
     lineage = Lineage(
         abspath(
-            join(dirname(__file__), "genetic_algorithm/lineages/test_lineage/")
+            join(dirname(__file__), "genetic_algorithm/lineages/res_tower/")
         )
     )
     while lineage.current_gen < 200:

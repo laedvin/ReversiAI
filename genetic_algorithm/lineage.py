@@ -7,7 +7,6 @@ from pathlib import Path
 import glob
 from timeit import default_timer as timer
 import numpy as np
-import deepdish as dd
 from genetic_algorithm.population import Population
 
 
@@ -62,8 +61,8 @@ class Lineage:
                 "mutation_var": 0.1,
                 "crossover_rate": 0.9,
                 "round_robin_rounds": 2,
-                "placement_matches": 50,
-                "adjustment_matches": 50,
+                "placement_matches": 5,
+                "adjustment_matches": 5,
                 "elo_attractiveness": 20,
                 "k_factor_rr": 20,  # Round robin
                 "k_factor_p": 40,  # Placement
@@ -91,19 +90,20 @@ class Lineage:
     def save_current_generation(self):
         """Save the population of the current generation"""
         generation_path = abspath(
-            join(self.path, f"generation_{self.current_gen}.h5")
+            join(self.path, f"generation_{self.current_gen}.npz")
         )
-        dd.io.save(generation_path, self.current_pop.pop)
+        np.savez_compressed(generation_path, self.current_pop.pop)
 
     def get_pop_from_gen(self, generation_id):
         """Get the population from a given generation"""
         generation_path = abspath(
-            join(self.path, f"generation_{generation_id}.h5")
+            join(self.path, f"generation_{generation_id}.npz")
         )
-        individuals = dd.io.load(generation_path)
+        individuals = np.load(generation_path)
         return Population(self.config, existing_population=individuals)
 
     def determine_population_elo(self):
+        """Determine the Elo ratings of the individuals in the population"""
         start = timer()
         print("Performing placement matches")
         self.current_pop.placement_matches(self.config["placement_matches"])

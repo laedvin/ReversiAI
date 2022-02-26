@@ -4,12 +4,12 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 from reversi.gameplay_utils import play_game
-from agents.simple_nn_agent import SimpleNNAgent
+from agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
 from agents.random_agent import RandomAgent
 from agents.naive_agent import NaiveAgent
 
 
-NUM_CPUS = cpu_count()
+NUM_CPUS = 4
 
 
 class Population:
@@ -186,8 +186,8 @@ class Population:
 
     @staticmethod
     def play_match(id_a, id_b, genome_a, genome_b):
-        agent_a = SimpleNNAgent()
-        agent_b = SimpleNNAgent()
+        agent_a = ResidualTowerPolicyAgent()
+        agent_b = ResidualTowerPolicyAgent()
         agent_a.set_genome(genome_a)
         agent_b.set_genome(genome_b)
         score_a = play_game(agent_a, agent_b)
@@ -196,7 +196,7 @@ class Population:
 
     @staticmethod
     def play_match_vs_random(id, genome):
-        agent_a = SimpleNNAgent()
+        agent_a = ResidualTowerPolicyAgent()
         agent_b = RandomAgent()
         agent_a.set_genome(genome)
         score_a = play_game(agent_a, agent_b)
@@ -205,7 +205,7 @@ class Population:
 
     @staticmethod
     def play_match_vs_naive(id, genome):
-        agent_a = SimpleNNAgent()
+        agent_a = ResidualTowerPolicyAgent()
         agent_b = NaiveAgent()
         agent_a.set_genome(genome)
         score_a = play_game(agent_a, agent_b)
@@ -214,42 +214,15 @@ class Population:
 
     @staticmethod
     def initialize_population(pop_size, initial_elo=1000):
-        """Initialize population
+        """Initialize population for the residual tower policy agent
 
         Sets their genome and Elo (which is to be used as fitness)
 
         """
-        # Hidden layer 1
-        # He Weight initialization for ReLU
-        hidden_1_w = np.random.randn(pop_size, 32 * 65) * np.sqrt(2 / 65)
-        hidden_1_b = np.random.randn(pop_size, 32) * 0.01
-
-        # Hidden layer 2
-        # He Weight initialization for ReLU
-        hidden_2_w = np.random.randn(pop_size, 32 * 32) * np.sqrt(2 / 32)
-        hidden_2_b = np.random.randn(pop_size, 32) * 0.01
-
-        # Hidden layer 2
-        # Normalized Xavier
-        upper = np.sqrt(6) / np.sqrt(64 + 32)
-        lower = -upper
-        output_w = np.random.rand(pop_size, 32 * 64) * (upper - lower) + lower
-        output_b = np.random.randn(pop_size, 64) * 0.01
-
-        genomes = np.concatenate(
-            (
-                hidden_1_w,
-                hidden_1_b,
-                hidden_2_w,
-                hidden_2_b,
-                output_w,
-                output_b,
-            ),
-            axis=1,
-        )
-
         pop = []
-        for id, genome in enumerate(genomes):
+        for id in range(pop_size):
+            sample_agent = ResidualTowerPolicyAgent()
+            genome = sample_agent.get_genome()
             individual = {
                 "id": id,
                 "genome": genome,
@@ -262,5 +235,4 @@ class Population:
                 "elo": initial_elo,
             }
             pop.append(individual)
-
         return np.array(pop)

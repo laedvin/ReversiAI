@@ -5,6 +5,8 @@ from torch import nn
 
 from agents.basic_agent import BasicAgent
 
+NUM_RES_BLOCKS = 2
+
 
 class ResidualTowerPolicyAgent(BasicAgent):
     """A neural network agent that"""
@@ -73,7 +75,7 @@ class ResidualTowerPolicyAgent(BasicAgent):
         return tuple(move)
 
     @staticmethod
-    def parameters_to_genome(net):
+    def _parameters_to_genome(net):
         """Transforms a network's parameters to a genome.
 
         The genome is just a flattening and a concatenation of the parameters.
@@ -91,11 +93,11 @@ class ResidualTowerPolicyAgent(BasicAgent):
         return genome
 
     @staticmethod
-    def genome_to_parameters(genome):
+    def _genome_to_parameters(genome):
         """Maps genome to a set of parameters"""
         # Hardcoded for 5 residual blocks and 32 filters per conv
         input_param_shapes = [(32, 3, 3, 3), (32)]
-        residual_block_param_shapes = [(32, 32, 3, 3), (32)] * 2 * 5
+        residual_block_param_shapes = [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
         policy_head_param_shapes = [(2, 32, 1, 1), (2), (64, 128), (64)]
         shapes = (
             input_param_shapes
@@ -112,10 +114,10 @@ class ResidualTowerPolicyAgent(BasicAgent):
         return matrices
 
     def get_genome(self):
-        return self.parameters_to_genome(self.net)
+        return self._parameters_to_genome(self.net)
 
     def set_genome(self, genome):
-        matrices = self.genome_to_parameters(genome)
+        matrices = self._genome_to_parameters(genome)
         state_dict = self.net.state_dict()
         for param_name, matrix in zip(state_dict, matrices):
             with torch.no_grad():
@@ -131,9 +133,6 @@ class ResidualTowerPolicy(nn.Module):
         self.input_layer = nn.Conv2d(3, 32, 3, padding=1)
 
         self.res_blocks = nn.Sequential(
-            ResidualBlock(num_filters),
-            ResidualBlock(num_filters),
-            ResidualBlock(num_filters),
             ResidualBlock(num_filters),
             ResidualBlock(num_filters),
         )
