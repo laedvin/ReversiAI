@@ -13,7 +13,7 @@ def main():
         join(dirname(__file__), "imitation_learning/models/test_imitation/")
     )
     imitation_session = ImitationSession(student, teacher, path)
-    imitation_session.train(500, 20, 200, learn_rate=0.01)
+    imitation_session.train(500, 20, 200, lr=0.01)
 
 
 if __name__ == "__main__":
