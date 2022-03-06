@@ -92,27 +92,52 @@ class Lineage:
         generation_path = abspath(
             join(self.path, f"generation_{self.current_gen}.npz")
         )
-        np.savez_compressed(generation_path, self.current_pop.pop)
+        with open(generation_path, "wb") as f:
+            np.savez_compressed(f, self.current_pop.pop)
 
     def get_pop_from_gen(self, generation_id):
         """Get the population from a given generation"""
         generation_path = abspath(
             join(self.path, f"generation_{generation_id}.npz")
         )
-        individuals = np.load(generation_path)
+        with open(generation_path, "rb") as f:
+            individuals = np.load(generation_path, allow_pickle=True)["arr_0"]
         return Population(self.config, existing_population=individuals)
 
     def determine_population_elo(self):
         """Determine the Elo ratings of the individuals in the population"""
         start = timer()
+        # Find best previous agent
+        baseline_individual = None
+        if self.current_gen > 0:
+            old_pop = self.get_pop_from_gen(self.current_gen - 1)
+            old_elos = [individual["elo"] for individual in old_pop.pop]
+            baseline_individual = old_pop.pop[np.argmax(old_elos)]
         print("Performing placement matches")
-        self.current_pop.placement_matches(self.config["placement_matches"])
+        self.current_pop.placement_matches(
+            self.config["placement_matches"],
+            baseline_individual=baseline_individual,
+        )
         print("Performing round robin matches")
         self.current_pop.round_robin(self.config["round_robin_rounds"])
         print("Performing adjustment matches")
-        self.current_pop.placement_matches(self.config["adjustment_matches"])
+        self.current_pop.placement_matches(
+            self.config["adjustment_matches"],
+            baseline_individual=baseline_individual,
+        )
         end = timer()
         print(f"Elo determination took {end-start} seconds")
+        elos = [individual["elo"] for individual in self.current_pop.pop]
+        average_elo = np.mean(elos)
+        print(
+            f"Average Elo for generation {self.current_gen} is {average_elo}"
+        )
+        print(
+            f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}"
+        )
+        print(
+            f"The worst individual was:\n{self.current_pop.pop[np.argmin(elos)]}"
+        )
 
     def advance_generation(self):
         average_elo = np.mean(
@@ -132,14 +157,6 @@ class Lineage:
         self.current_pop.update_genome(new_genomes)
 
         self.determine_population_elo()
-        elos = [individual["elo"] for individual in self.current_pop.pop]
-        average_elo = np.mean(elos)
-        print(
-            f"Average Elo for generation {self.current_gen} is {average_elo}"
-        )
-        print(
-            f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}"
-        )
         self.save_current_generation()
 
     def reproduce(self, id_a, id_b):

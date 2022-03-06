@@ -6,11 +6,11 @@ Might need a way to compare Elos between generations.
 
 ## Current implementation
 
-Currently each agent play a series of placement matches against a random policy AI. The random policy AI has a fixed 500 Elo.
+Currently each agent play a series of placement matches against a baseline agent from the previous generation. The agent with the highest Elo is chosen to be the baseline agent. During these placement matches the Elo of the baseline agent is held constant.
 
 Matches among the populations are then played in a round-robin format, meaning that each agent will play against every other agent.
 
-After that the agents play against the random policy AI again.
+After that the agents play against the baseline agent again.
 
 
 ## Possible changes

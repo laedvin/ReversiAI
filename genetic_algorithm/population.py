@@ -21,15 +21,15 @@ class Population:
                 self.pop = existing_population
             else:
                 raise ValueError(
-                    "Pop size of existing population does not match the pop "
-                    "size in the config file."
+                    f"Pop size of existing population does not match the pop "
+                    f"size in the config file; {len(existing_population)} vs {self.config['pop_size']}"
                 )
         else:
             self.pop = self.initialize_population(
                 self.config["pop_size"], initial_elo
             )
 
-    def placement_matches(self, n):
+    def placement_matches(self, n, baseline_individual=None):
         """Every individual plays n matches against a uniform random agent.
 
         Each match includes one game as white and one game as black.
@@ -38,14 +38,31 @@ class Population:
 
         Args:
             n: the number of rounds to play
+            baseline_individual: A specific individual to measure Elo against.
+                If None, a naive agent will be used.
         """
         genomes = [individual["genome"] for individual in self.pop]
         individual_ids = [individual["id"] for individual in self.pop] * n
         with Pool(NUM_CPUS) as pool:
-            result = pool.starmap(
-                self.play_match_vs_naive,
-                [(id, genomes[id]) for id in individual_ids],
-            )
+            if baseline_individual:
+                baseline_genome = baseline_individual["genome"]
+                result = pool.starmap(
+                    self.play_match,
+                    [
+                        (id, -1, genomes[id], baseline_genome)
+                        for id in individual_ids
+                    ],
+                )
+                # Format the resulting list of tuples so it aligns with the other case
+                result = [
+                    (id, score_as_white, score_as_black)
+                    for id, _, score_as_white, score_as_black in result
+                ]
+            else:
+                result = pool.starmap(
+                    self.play_match_vs_naive,
+                    [(id, genomes[id]) for id in individual_ids],
+                )
         for id, score_as_white, score_as_black in result:
             score = (score_as_white + 1 - score_as_black) / 2
             elo_delta, _ = self.calculate_elo(

@@ -97,7 +97,9 @@ class ResidualTowerPolicyAgent(BasicAgent):
         """Maps genome to a set of parameters"""
         # Hardcoded for 5 residual blocks and 32 filters per conv
         input_param_shapes = [(32, 3, 3, 3), (32)]
-        residual_block_param_shapes = [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
+        residual_block_param_shapes = (
+            [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
+        )
         policy_head_param_shapes = [(2, 32, 1, 1), (2), (64, 128), (64)]
         shapes = (
             input_param_shapes
