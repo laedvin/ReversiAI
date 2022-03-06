@@ -22,9 +22,7 @@ class BranchAggregateAgent(BasicAgent):
                 branch_score = -np.inf
                 branch_board = GameBoard()
                 branch_board.board = np.copy(state)
-                branch_board.place_piece(
-                    branch_board.matrix_to_coordinates(move), self.own_player
-                )
+                branch_board.place_piece(branch_board.matrix_to_coordinates(move), self.own_player)
                 branch_state = branch_board.get_board()
 
                 opponent_moves = branch_board.find_moves(self.opponent)
@@ -51,15 +49,9 @@ class BranchAggregateAgent(BasicAgent):
                             )
                             for i in range(8):
                                 for j in range(8):
-                                    if (
-                                        branch_board.board[i][j]
-                                        == self.own_player
-                                    ):
+                                    if branch_board.board[i][j] == self.own_player:
                                         score += 1
-                                    elif (
-                                        branch_board.board[i][j]
-                                        == self.opponent
-                                    ):
+                                    elif branch_board.board[i][j] == self.opponent:
                                         score -= 1
                             if score > branch_score:
                                 branch_score = score
@@ -82,75 +74,47 @@ class BranchAggregateAgent(BasicAgent):
 
                         next_moves = branch_board.find_moves(self.own_player)
                         if len(next_moves) == 0:
-                            next_opp_moves = branch_board.find_moves(
-                                self.opponent
-                            )
+                            next_opp_moves = branch_board.find_moves(self.opponent)
                             if len(next_opp_moves) == 0:
                                 # The scenario where no-one can play
                                 score = 0
                                 for i in range(8):
                                     for j in range(8):
-                                        if (
-                                            branch_board.board[i][j]
-                                            == self.own_player
-                                        ):
+                                        if branch_board.board[i][j] == self.own_player:
                                             score += 1
-                                        elif (
-                                            branch_board.board[i][j]
-                                            == self.opponent
-                                        ):
+                                        elif branch_board.board[i][j] == self.opponent:
                                             score -= 1
                             else:
                                 # The scenario where only this agent can't play
                                 score = 0
                                 for next_opp_move in next_opp_moves:
                                     branch_board = GameBoard()
-                                    branch_board.board = np.copy(
-                                        branch_branch_state
-                                    )
+                                    branch_board.board = np.copy(branch_branch_state)
                                     branch_board.place_piece(
-                                        branch_board.matrix_to_coordinates(
-                                            next_opp_move
-                                        ),
+                                        branch_board.matrix_to_coordinates(next_opp_move),
                                         self.opponent,
                                     )
                                     for i in range(8):
                                         for j in range(8):
-                                            if (
-                                                branch_board.board[i][j]
-                                                == self.own_player
-                                            ):
+                                            if branch_board.board[i][j] == self.own_player:
                                                 score += 1
-                                            elif (
-                                                branch_board.board[i][j]
-                                                == self.opponent
-                                            ):
+                                            elif branch_board.board[i][j] == self.opponent:
                                                 score -= 1
                                 score /= len(next_opp_moves)
                         else:
                             for next_move in next_moves:
                                 next_score = 0
                                 branch_board = GameBoard()
-                                branch_board.board = np.copy(
-                                    branch_branch_state
-                                )
+                                branch_board.board = np.copy(branch_branch_state)
                                 branch_board.place_piece(
-                                    branch_board.matrix_to_coordinates(
-                                        next_move
-                                    ),
+                                    branch_board.matrix_to_coordinates(next_move),
                                     self.own_player,
                                 )
                                 for i in range(8):
                                     for j in range(8):
-                                        if (
-                                            branch_board.board[i][j]
-                                            == self.own_player
-                                        ):
+                                        if branch_board.board[i][j] == self.own_player:
                                             next_score += 1
-                                        elif (
-                                            branch_board.board[i][j]
-                                            == self.opponent
-                                        ):
+                                        elif branch_board.board[i][j] == self.opponent:
                                             next_score -= 1
                                 if next_score > score:
                                     score = next_score

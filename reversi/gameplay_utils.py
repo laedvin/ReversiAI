@@ -70,9 +70,7 @@ def play_game_nn_train(white, black, detach=False):
         player_turns.append(player)
         states.append(state)
         picked_moves.append(location)
-        network_outputs = torch.cat(
-            (network_outputs, out.reshape(-1, 64)), dim=0
-        )
+        network_outputs = torch.cat((network_outputs, out.reshape(-1, 64)), dim=0)
 
         if detach:
             network_outputs = network_outputs.detach()

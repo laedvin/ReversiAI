@@ -79,9 +79,7 @@ class ImitationSession:
                 train_states += game_states
                 train_player_turns += game_player_turns
                 train_predicted_moves += game_predicted_moves
-                train_raw_outputs = torch.cat(
-                    (train_raw_outputs, game_raw_outputs)
-                )
+                train_raw_outputs = torch.cat((train_raw_outputs, game_raw_outputs))
 
             for state, player in zip(train_states, train_player_turns):
                 self.teacher.set_player(player)
@@ -97,9 +95,7 @@ class ImitationSession:
             train_states = torch.cat(
                 (
                     train_states,
-                    (train_player_turns * 2 - 3).reshape(
-                        (train_states.shape[0], 1)
-                    ),
+                    (train_player_turns * 2 - 3).reshape((train_states.shape[0], 1)),
                 ),
                 dim=1,
             )
@@ -132,9 +128,7 @@ class ImitationSession:
                 val_states += game_states
                 val_player_turns += game_player_turns
                 val_predicted_moves += game_predicted_moves
-                val_raw_outputs = torch.cat(
-                    (val_raw_outputs, game_raw_outputs)
-                )
+                val_raw_outputs = torch.cat((val_raw_outputs, game_raw_outputs))
 
             for state, player in zip(val_states, val_player_turns):
                 self.teacher.set_player(player)
@@ -150,9 +144,7 @@ class ImitationSession:
             val_states = torch.cat(
                 (
                     val_states,
-                    (val_player_turns * 2 - 3).reshape(
-                        (val_states.shape[0], 1)
-                    ),
+                    (val_player_turns * 2 - 3).reshape((val_states.shape[0], 1)),
                 ),
                 dim=1,
             )

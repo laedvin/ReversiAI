@@ -26,13 +26,9 @@ class GameWindow:
         self.reversi = ReversiEnvironment()
         for i in range(8):
             for j in range(8):
-                cell_box = (
-                    np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
-                )
+                cell_box = np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
                 x_min, y_min, x_max, y_max = cell_box
-                self.canvas.create_line(
-                    x_min, y_min, x_max, y_min, x_max, y_max, x_min, y_max
-                )
+                self.canvas.create_line(x_min, y_min, x_max, y_min, x_max, y_max, x_min, y_max)
 
         state = self.reversi.get_board()
         print(f"{MAP_NAME['1']} to play")
@@ -45,9 +41,7 @@ class GameWindow:
         for i in range(8):
             for j in range(8):
                 if state[i][j] == WHITE:
-                    cell_box = (
-                        np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
-                    )
+                    cell_box = np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
                     self.canvas.create_oval(
                         cell_box[0],
                         cell_box[1],
@@ -56,9 +50,7 @@ class GameWindow:
                         fill="white",
                     )
                 elif state[i][j] == BLACK:
-                    cell_box = (
-                        np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
-                    )
+                    cell_box = np.array([i, j, (i + 1), (j + 1)]) * self.cell_size + 2
                     self.canvas.create_oval(
                         cell_box[0],
                         cell_box[1],

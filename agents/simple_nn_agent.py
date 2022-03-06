@@ -30,9 +30,7 @@ class SimpleNNAgent(BasicAgent):
         self.game_board.board = np.copy(board)
         board[board.astype(bool)] = board[board.astype(bool)] * 2 - 3
         board_flattened = torch.flatten(torch.from_numpy(board))
-        x = torch.cat(
-            (board_flattened, torch.tensor([self.own_player * 2 - 3]))
-        ).float()
+        x = torch.cat((board_flattened, torch.tensor([self.own_player * 2 - 3]))).float()
 
         with torch.no_grad():
             out = self.net.forward(x)
@@ -76,9 +74,7 @@ class SimpleNNAgent(BasicAgent):
         self.game_board.board = np.copy(board)
         board[board.astype(bool)] = board[board.astype(bool)] * 2 - 3
         board_flattened = torch.flatten(torch.from_numpy(board))
-        x = torch.cat(
-            (board_flattened, torch.tensor([self.own_player * 2 - 3]))
-        ).float()
+        x = torch.cat((board_flattened, torch.tensor([self.own_player * 2 - 3]))).float()
 
         out = self.net.forward(x)
 
@@ -124,9 +120,7 @@ class SimpleNNAgent(BasicAgent):
 
         # Ravel the moves/indices to get onehot vectors
         target_moves = target_moves.detach().numpy()
-        target_moves = np.ravel_multi_index(
-            (target_moves[:, 0], target_moves[:, 1]), (8, 8)
-        )
+        target_moves = np.ravel_multi_index((target_moves[:, 0], target_moves[:, 1]), (8, 8))
         column_indices = np.arange(target_moves.shape[0])
         target_onehot = torch.zeros((states.shape[0], 64))
         target_onehot[column_indices, target_moves] = 1
@@ -155,9 +149,7 @@ class SimpleNNAgent(BasicAgent):
         shapes = [(32, 65), (32), (32, 32), (32), (64, 32), (64)]
         matrices = []
         for shape in shapes:
-            matrix = torch.from_numpy(genome[0 : np.prod(shape)]).reshape(
-                shape
-            )
+            matrix = torch.from_numpy(genome[0 : np.prod(shape)]).reshape(shape)
             matrices.append(matrix)
             genome = genome[np.prod(shape) :]
         return matrices

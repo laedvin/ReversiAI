@@ -9,9 +9,7 @@ from agents.naive_agent import NaiveAgent
 def main():
     student = SimpleNNAgent()
     teacher = NaiveAgent()
-    path = abspath(
-        join(dirname(__file__), "imitation_learning/models/test_imitation/")
-    )
+    path = abspath(join(dirname(__file__), "imitation_learning/models/test_imitation/"))
     imitation_session = ImitationSession(student, teacher, path)
     imitation_session.train(500, 20, 200, lr=0.01)
 

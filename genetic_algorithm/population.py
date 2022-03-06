@@ -25,9 +25,7 @@ class Population:
                     f"size in the config file; {len(existing_population)} vs {self.config['pop_size']}"
                 )
         else:
-            self.pop = self.initialize_population(
-                self.config["pop_size"], initial_elo
-            )
+            self.pop = self.initialize_population(self.config["pop_size"], initial_elo)
 
     def placement_matches(self, n, baseline_individual=None):
         """Every individual plays n matches against a uniform random agent.
@@ -48,10 +46,7 @@ class Population:
                 baseline_genome = baseline_individual["genome"]
                 result = pool.starmap(
                     self.play_match,
-                    [
-                        (id, -1, genomes[id], baseline_genome)
-                        for id in individual_ids
-                    ],
+                    [(id, -1, genomes[id], baseline_genome) for id in individual_ids],
                 )
                 # Format the resulting list of tuples so it aligns with the other case
                 result = [
@@ -71,9 +66,7 @@ class Population:
                 score,
                 k_factor=self.config["k_factor_p"],
             )
-            self.pop[id]["elo"] = max(
-                self.pop[id]["elo"] + elo_delta, self.config["elo_floor"]
-            )
+            self.pop[id]["elo"] = max(self.pop[id]["elo"] + elo_delta, self.config["elo_floor"])
 
     def round_robin(self, n):
         """Plays n rounds of round robin
@@ -92,9 +85,7 @@ class Population:
         individual_ids = [individual["id"] for individual in self.pop]
         pairings = []
         for i in range(n):
-            partial_pairings = list(
-                itertools.permutations(individual_ids, r=2)
-            )
+            partial_pairings = list(itertools.permutations(individual_ids, r=2))
             random.shuffle(partial_pairings)
             pairings += partial_pairings
 

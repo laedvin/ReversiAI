@@ -19,6 +19,4 @@ class BasicAgent:
         self.opponent = 2 if self.own_player == 1 else 1
 
     def predict(self, state):
-        raise NotImplementedError(
-            "Agent doesn't have predictions properly implemented"
-        )
+        raise NotImplementedError("Agent doesn't have predictions properly implemented")

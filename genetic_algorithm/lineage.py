@@ -89,17 +89,13 @@ class Lineage:
 
     def save_current_generation(self):
         """Save the population of the current generation"""
-        generation_path = abspath(
-            join(self.path, f"generation_{self.current_gen}.npz")
-        )
+        generation_path = abspath(join(self.path, f"generation_{self.current_gen}.npz"))
         with open(generation_path, "wb") as f:
             np.savez_compressed(f, self.current_pop.pop)
 
     def get_pop_from_gen(self, generation_id):
         """Get the population from a given generation"""
-        generation_path = abspath(
-            join(self.path, f"generation_{generation_id}.npz")
-        )
+        generation_path = abspath(join(self.path, f"generation_{generation_id}.npz"))
         with open(generation_path, "rb") as f:
             individuals = np.load(generation_path, allow_pickle=True)["arr_0"]
         return Population(self.config, existing_population=individuals)
@@ -129,20 +125,12 @@ class Lineage:
         print(f"Elo determination took {end-start} seconds")
         elos = [individual["elo"] for individual in self.current_pop.pop]
         average_elo = np.mean(elos)
-        print(
-            f"Average Elo for generation {self.current_gen} is {average_elo}"
-        )
-        print(
-            f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}"
-        )
-        print(
-            f"The worst individual was:\n{self.current_pop.pop[np.argmin(elos)]}"
-        )
+        print(f"Average Elo for generation {self.current_gen} is {average_elo}")
+        print(f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}")
+        print(f"The worst individual was:\n{self.current_pop.pop[np.argmin(elos)]}")
 
     def advance_generation(self):
-        average_elo = np.mean(
-            [individual["elo"] for individual in self.current_pop.pop]
-        )
+        average_elo = np.mean([individual["elo"] for individual in self.current_pop.pop])
         initial_elo = (average_elo + self.config["placement_agent_elo"]) / 2
 
         mating_pairs = self.select_mating_pairs()
@@ -175,25 +163,17 @@ class Lineage:
         if random.random() < self.config["crossover_rate"]:
             crossover_point = random.randint(0, len(genome_a) - 1)
 
-            offspring_a = np.concatenate(
-                (genome_a[0:crossover_point], genome_b[crossover_point:])
-            )
-            offspring_b = np.concatenate(
-                (genome_b[0:crossover_point], genome_a[crossover_point:])
-            )
+            offspring_a = np.concatenate((genome_a[0:crossover_point], genome_b[crossover_point:]))
+            offspring_b = np.concatenate((genome_b[0:crossover_point], genome_a[crossover_point:]))
         else:
             offspring_a = np.copy(genome_a)
             offspring_b = np.copy(genome_b)
 
         for idx, (a, b) in enumerate(zip(offspring_a, offspring_b)):
             if random.random() < self.config["mutation_rate"]:
-                offspring_a[idx] = a + random.gauss(
-                    0, np.sqrt(self.config["mutation_var"])
-                )
+                offspring_a[idx] = a + random.gauss(0, np.sqrt(self.config["mutation_var"]))
             if random.random() < self.config["mutation_rate"]:
-                offspring_b[idx] = b + random.gauss(
-                    0, np.sqrt(self.config["mutation_var"])
-                )
+                offspring_b[idx] = b + random.gauss(0, np.sqrt(self.config["mutation_var"]))
 
         return offspring_a, offspring_b
 
@@ -220,9 +200,7 @@ class Lineage:
 
         print(f"Mating probability:\n{p}")
 
-        first_halfs = np.random.choice(
-            ids, int(np.ceil(self.config["pop_size"] / 2)), p=p
-        )
+        first_halfs = np.random.choice(ids, int(np.ceil(self.config["pop_size"] / 2)), p=p)
         pairs = []
         for first_half in first_halfs:
             mask = np.ones(ids.size, dtype=bool)

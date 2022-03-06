@@ -15,9 +15,7 @@ class ResidualTowerPolicyAgent(BasicAgent):
         super(ResidualTowerPolicyAgent, self).__init__(player)
         self.softmax = nn.Softmax(dim=0)
         if use_cuda:
-            self.device = torch.device(
-                "cuda" if torch.cuda.is_available() else "cpu"
-            )
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
             self.device = torch.device("cpu")
         self.net = ResidualTowerPolicy(32).to(self.device)
@@ -31,9 +29,7 @@ class ResidualTowerPolicyAgent(BasicAgent):
         input_board = np.copy(input_board)
         self.game_board.board = np.copy(input_board)
 
-        input_board[input_board.astype(bool)] = (
-            input_board[input_board.astype(bool)] * 2 - 3
-        )
+        input_board[input_board.astype(bool)] = input_board[input_board.astype(bool)] * 2 - 3
 
         # Create the input layers
         white_pieces = np.zeros((8, 8))
@@ -97,20 +93,12 @@ class ResidualTowerPolicyAgent(BasicAgent):
         """Maps genome to a set of parameters"""
         # Hardcoded for 5 residual blocks and 32 filters per conv
         input_param_shapes = [(32, 3, 3, 3), (32)]
-        residual_block_param_shapes = (
-            [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
-        )
+        residual_block_param_shapes = [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
         policy_head_param_shapes = [(2, 32, 1, 1), (2), (64, 128), (64)]
-        shapes = (
-            input_param_shapes
-            + residual_block_param_shapes
-            + policy_head_param_shapes
-        )
+        shapes = input_param_shapes + residual_block_param_shapes + policy_head_param_shapes
         matrices = []
         for shape in shapes:
-            matrix = torch.from_numpy(genome[0 : np.prod(shape)]).reshape(
-                shape
-            )
+            matrix = torch.from_numpy(genome[0 : np.prod(shape)]).reshape(shape)
             matrices.append(matrix)
             genome = genome[np.prod(shape) :]
         return matrices

@@ -33,9 +33,7 @@ class NDepthSearchAgent(BasicAgent):
             best_move = moves[0]
             best_score = -np.inf
             for move in moves:
-                score = self.recursive_search(
-                    self.game_board, move, self.depth
-                )
+                score = self.recursive_search(self.game_board, move, self.depth)
                 if score > best_score:
                     best_score = score
                     best_move = move
@@ -47,16 +45,12 @@ class NDepthSearchAgent(BasicAgent):
         """
         # Cast input_board to GameBoard object?
         if depth == 1:
-            input_board.place_piece(
-                input_board.matrix_to_coordinates(input_move), self.own_player
-            )
+            input_board.place_piece(input_board.matrix_to_coordinates(input_move), self.own_player)
             moves = input_board.find_moves(self.opponent)
             if len(moves) == 0:
                 best_score = input_board.calculate_score()
             elif len(moves) == 1:
-                input_board.place_piece(
-                    input_board.matrix_to_coordinates(moves[0]), self.opponent
-                )
+                input_board.place_piece(input_board.matrix_to_coordinates(moves[0]), self.opponent)
                 best_score = input_board.calculate_score()
             elif len(moves) > 1:
                 best_move = moves[int(np.random.uniform(0, len(moves), 1)[0])]

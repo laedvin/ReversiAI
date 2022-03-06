@@ -33,9 +33,7 @@ def main():
         )
     for score_a, score_b in result:
         final_score = (score_a + (1 - score_b)) / 2
-        da_elo, db_elo = Population.calculate_elo(
-            pa_elo, pb_elo, final_score, k_factor=10
-        )
+        da_elo, db_elo = Population.calculate_elo(pa_elo, pb_elo, final_score, k_factor=10)
         pa_elo += da_elo
         pb_elo += db_elo
 
