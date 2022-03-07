@@ -9,7 +9,7 @@ from agents.random_agent import RandomAgent
 from agents.naive_agent import NaiveAgent
 
 
-NUM_CPUS = 4
+NUM_CPUS = min(6, cpu_count())
 
 
 class Population:
@@ -28,7 +28,7 @@ class Population:
             self.pop = self.initialize_population(self.config["pop_size"], initial_elo)
 
     def placement_matches(self, n, baseline_individual=None):
-        """Every individual plays n matches against a uniform random agent.
+        """Every individual plays n matches against a baseline agent.
 
         Each match includes one game as white and one game as black.
 
@@ -43,6 +43,7 @@ class Population:
         individual_ids = [individual["id"] for individual in self.pop] * n
         with Pool(NUM_CPUS) as pool:
             if baseline_individual:
+                baseline_elo = baseline_individual["elo"]
                 baseline_genome = baseline_individual["genome"]
                 result = pool.starmap(
                     self.play_match,
@@ -58,11 +59,12 @@ class Population:
                     self.play_match_vs_naive,
                     [(id, genomes[id]) for id in individual_ids],
                 )
+                baseline_elo = self.config["initial_elo"]
         for id, score_as_white, score_as_black in result:
             score = (score_as_white + 1 - score_as_black) / 2
             elo_delta, _ = self.calculate_elo(
                 self.pop[id]["elo"],
-                self.config["placement_agent_elo"],
+                baseline_elo,
                 score,
                 k_factor=self.config["k_factor_p"],
             )

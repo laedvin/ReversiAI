@@ -47,13 +47,15 @@ class Lineage:
         self.path = path
         Path(self.path).mkdir(parents=True, exist_ok=True)
 
-        self.config = config
-        if self.config is not None:
+        if os.path.isfile(join(path, "config.json")):
+            with open(join(path, "config.json"), "r") as f:
+                print("Loading config from existing config file.")
+                self.config = json.load(f)
+        elif config:
+            self.config = config
+            print("Creating new config file.")
             with open(join(path, "config.json"), "w") as f:
                 json.dump(self.config, f, indent=2)
-        elif os.path.isfile(join(path, "config.json")):
-            with open(join(path, "config.json"), "r") as f:
-                self.config = json.load(f)
         else:
             self.config = {
                 "pop_size": 50,
@@ -66,9 +68,10 @@ class Lineage:
                 "elo_attractiveness": 20,
                 "k_factor_rr": 20,  # Round robin
                 "k_factor_p": 40,  # Placement
-                "placement_agent_elo": 500,
+                "initial_elo": 500,
                 "elo_floor": 100,
             }
+            print("Creating new config file using default values.")
             with open(join(path, "config.json"), "w") as f:
                 json.dump(self.config, f)
 
@@ -82,7 +85,7 @@ class Lineage:
         else:
             print("Creating generation 0")
             self.current_gen = 0
-            initial_elo = self.config["placement_agent_elo"]
+            initial_elo = self.config["initial_elo"]
             self.current_pop = Population(self.config, initial_elo=initial_elo)
             self.determine_population_elo()
             self.save_current_generation()
@@ -96,7 +99,7 @@ class Lineage:
     def get_pop_from_gen(self, generation_id):
         """Get the population from a given generation"""
         generation_path = abspath(join(self.path, f"generation_{generation_id}.npz"))
-        with open(generation_path, "rb") as f:
+        with open(generation_path, "rb"):
             individuals = np.load(generation_path, allow_pickle=True)["arr_0"]
         return Population(self.config, existing_population=individuals)
 
@@ -131,7 +134,7 @@ class Lineage:
 
     def advance_generation(self):
         average_elo = np.mean([individual["elo"] for individual in self.current_pop.pop])
-        initial_elo = (average_elo + self.config["placement_agent_elo"]) / 2
+        initial_elo = (average_elo + self.config["initial_elo"]) / 2
 
         mating_pairs = self.select_mating_pairs()
         new_genomes = [self.reproduce(*pair) for pair in mating_pairs]

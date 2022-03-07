@@ -4,7 +4,23 @@ from genetic_algorithm.lineage import Lineage
 
 
 def main():
-    lineage = Lineage(abspath(join(dirname(__file__), "genetic_algorithm/lineages/res_tower/")))
+    config = {
+        "pop_size": 25,
+        "mutation_rate": 0.02,
+        "mutation_var": 0.1,
+        "crossover_rate": 0.9,
+        "round_robin_rounds": 8,
+        "placement_matches": 5,
+        "adjustment_matches": 5,
+        "elo_attractiveness": 20,
+        "k_factor_rr": 20,  # Round robin
+        "k_factor_p": 40,  # Placement
+        "initial_elo": 500,
+        "elo_floor": 100,
+    }
+    lineage = Lineage(
+        abspath(join(dirname(__file__), "genetic_algorithm/lineages/res_tower/")), config=config
+    )
     while lineage.current_gen < 200:
         lineage.advance_generation()
         print(f"Saved generation {lineage.current_gen}")
