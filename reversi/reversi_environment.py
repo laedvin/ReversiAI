@@ -83,3 +83,23 @@ class ReversiEnvironment:
                 return 0
         else:
             return -1
+
+    def calculate_score(self, board=None):
+        """Calculates the score of a board
+
+        Args:
+            board: The board, optional
+
+        Returns: score_white, score_black
+        """
+        score_white = 0
+        score_black = 0
+        if board is None:
+            board = self.get_board()
+        for i in range(8):
+            for j in range(8):
+                if board[i][j] == WHITE:
+                    score_white += 1
+                elif board[i][j] == BLACK:
+                    score_black += 1
+        return score_white, score_black

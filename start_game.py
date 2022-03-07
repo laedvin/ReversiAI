@@ -1,9 +1,8 @@
 import tkinter as tk
-import sys
-import time
 import numpy as np
 from reversi.reversi_environment import ReversiEnvironment
 from agents.random_agent import RandomAgent
+from agents.naive_agent import NaiveAgent
 
 
 WHITE = 1
@@ -13,7 +12,19 @@ MAP_NAME = {"1": "WHITE", "2": "BLACK"}
 
 
 class GameWindow:
-    def __init__(self, agent_white="human", agent_black="human"):
+    def __init__(self, agent=None):
+        self.agent = agent
+        if self.agent and self.agent.own_player == 1:
+            self.agent_player = 1
+            print("Starting a game vs an AI playing white")
+        elif self.agent and self.agent.own_player == 2:
+            self.agent_player = 2
+            print("Starting a game vs an AI playing black")
+        else:
+            self.agent_player = None
+            print("Starting a player vs player game")
+
+        # Initialize the game board
         self.cell_size = 64
         self.text_height = self.cell_size
         self.window = tk.Tk(className="bla")
@@ -30,14 +41,36 @@ class GameWindow:
                 x_min, y_min, x_max, y_max = cell_box
                 self.canvas.create_line(x_min, y_min, x_max, y_min, x_max, y_max, x_min, y_max)
 
+        self.white_score_text = self.canvas.create_text(
+            str(self.cell_size * 0.5),
+            self.cell_size * 8 + self.text_height / 2,
+            text="",
+            fill="white",
+            font=("courier", int(self.text_height * 0.8), "bold"),
+        )
+        self.black_score_text = self.canvas.create_text(
+            int(self.cell_size * 7.5),
+            self.cell_size * 8 + self.text_height / 2,
+            text="",
+            fill="black",
+            font=("courier", int(self.text_height * 0.8), "bold"),
+        )
+
         state = self.reversi.get_board()
-        print(f"{MAP_NAME['1']} to play")
         self.update_game_state(state)
+
+        if self.agent_player == 1:
+            self.agent_loop_logic()
+        else:
+            print(f"{MAP_NAME['1']} to play")
 
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.callback)
 
     def update_game_state(self, state):
+        white_score, black_score = self.reversi.calculate_score()
+        self.canvas.itemconfigure(self.white_score_text, text=str(white_score))
+        self.canvas.itemconfigure(self.black_score_text, text=str(black_score))
         for i in range(8):
             for j in range(8):
                 if state[i][j] == WHITE:
@@ -60,10 +93,9 @@ class GameWindow:
                     )
 
     def callback(self, event):
-        # Transform to coordinates on the board
-        # The canvas is offset by 2, so x between 0 and 1 is outside of the
-        # green background.
-
+        """Assumes that it's a player's turn. If the resulting board state is an agent's turn,
+        let the agent place its piece before exiting the callback.
+        """
         stepped, next_player, game_result = self.player_place_piece(event)
         if game_result == 0:
             print("It's a draw!")
@@ -71,8 +103,19 @@ class GameWindow:
             print("WHITE wins!")
         elif game_result == 2:
             print("BLACK wins!")
-        elif stepped:
+        elif stepped and next_player != self.agent_player:
             print(f"{MAP_NAME[str(next_player)]} to play")
+        elif stepped and next_player == self.agent_player:
+            # If it's the agent's turn
+            next_player, game_result = self.agent_loop_logic()
+            if game_result == 0:
+                print("It's a draw!")
+            elif game_result == 1:
+                print("WHITE wins!")
+            elif game_result == 2:
+                print("BLACK wins!")
+            elif game_result == -1:
+                print(f"{MAP_NAME[str(next_player)]} to play")
 
     def player_place_piece(self, event):
         """Places a piece depending on the player's mouse click.
@@ -86,7 +129,6 @@ class GameWindow:
 
         """
         stepped = False
-        state = None
         next_player = None
         game_result = -1
         coord = np.array([event.x - 2, event.y - 2])
@@ -104,10 +146,30 @@ class GameWindow:
             self.update_game_state(state)
         return stepped, next_player, game_result
 
+    def agent_loop_logic(self):
+        """Agent plays until it's not its turn anymore"""
+        next_player = self.reversi.player_turn
+        game_result = -1
+        while next_player == self.agent_player and game_result == -1:
+            next_player, game_result = self.agent_place_piece()
+        return next_player, game_result
+
+    def agent_place_piece(self):
+        """Lets the agent place a piece"""
+        next_player = None
+        game_result = -1
+        state = self.reversi.get_board()
+        if self.agent_player == self.reversi.player_turn:
+            location = self.agent.predict(state)
+            _, state, next_player, game_result = self.reversi.step(location, matrix_coord=True)
+            self.update_game_state(state)
+            print(f"Agent played on {location}")
+        return next_player, game_result
+
 
 def main():
-    white_agent = RandomAgent(1)
-    game_window = GameWindow(agent_white=white_agent)
+    agent = NaiveAgent(2)
+    game_window = GameWindow(agent=agent)
     # TODO: Figure out a way to play with an AI. Maybe with tk.after()?
     tk.mainloop()
 
