@@ -161,7 +161,10 @@ class Population:
             genomes: A list of genomes matching the pop size
         """
         if not (len(genomes) == self.config["pop_size"]):
-            raise ValueError("Number of genomes and individuals don't match")
+            raise ValueError(
+                f"Number of genomes and individuals don't match; {len(genomes)} genomes vs "
+                f"{self.config['pop_size']} individuals"
+            )
         for idx, genome in enumerate(genomes):
             self.pop[idx]["genome"] = genome
 
@@ -246,3 +249,8 @@ class Population:
             }
             pop.append(individual)
         return np.array(pop)
+
+    @staticmethod
+    def initialize_agent():
+        """Initializes a random (residual tower policy) agent"""
+        return ResidualTowerPolicyAgent()

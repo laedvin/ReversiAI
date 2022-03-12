@@ -9,7 +9,7 @@ NUM_RES_BLOCKS = 2
 
 
 class ResidualTowerPolicyAgent(BasicAgent):
-    """A neural network agent that"""
+    """A neural network agent that..."""
 
     def __init__(self, player=1, use_cuda=False):
         super(ResidualTowerPolicyAgent, self).__init__(player)
@@ -19,6 +19,32 @@ class ResidualTowerPolicyAgent(BasicAgent):
         else:
             self.device = torch.device("cpu")
         self.net = ResidualTowerPolicy(32).to(self.device)
+        self.net.apply(self._initialize_weights)
+        self.net.apply(self._initialize_biases)
+
+    def _initialize_weights(self, m):
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_uniform_(m.weight, nonlinearity="relu")
+        elif isinstance(m, nn.Linear):
+            nn.init.kaiming_uniform_(m.weight)
+
+    def _initialize_biases(self, m):
+        if isinstance(m, nn.Conv2d):
+            if m.bias is not None:
+                fan_in, _ = nn.init._calculate_fan_in_and_fan_out(m.weight)
+                if fan_in != 0:
+                    bound = 1 / np.sqrt(fan_in)
+                    nn.init.uniform_(m.bias, -bound, bound)
+                else:
+                    print("Warning, fan_in was calculated to be 0")
+        elif isinstance(m, nn.Linear):
+            if m.bias is not None:
+                fan_in, _ = nn.init._calculate_fan_in_and_fan_out(m.weight)
+                if fan_in != 0:
+                    bound = 1 / np.sqrt(fan_in)
+                    nn.init.uniform_(m.bias, -bound, bound)
+                else:
+                    print("Warning, fan_in was calculated to be 0")
 
     def predict(self, input_board):
         """The agent predict the piece to play
@@ -70,48 +96,44 @@ class ResidualTowerPolicyAgent(BasicAgent):
         move = rng.choice(moves, p=move_distribution)
         return tuple(move)
 
-    @staticmethod
-    def _parameters_to_genome(net):
-        """Transforms a network's parameters to a genome.
+    def get_genome(self):
+        """Converts the network's parameters to a genome.
 
-        The genome is just a flattening and a concatenation of the parameters.
+        The genome consist of several chromosomes, each of which is all the weights and biases of
+        a convolutional or dense layer.
 
-        Args:
-            net: a sequential pytorch nn
-
-        Return: 1D numpy vector
+        Return: List of chromosome dicts with the keys "weight" and "bias". The list of chromosomes
+            are ordered in the same way as looping through the modules in a network.
         """
-        genome = np.array([])
-        for m in net.modules():
+        genome = []
+        for m in self.net.modules():
             if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d):
-                genome = np.append(genome, m.weight.flatten().detach())
-                genome = np.append(genome, m.bias.flatten().detach())
+                chromosome = {
+                    "weight": m.weight.detach().clone(),
+                    "bias": m.bias.detach().clone(),
+                }
+                genome.append(chromosome)
+
         return genome
 
-    @staticmethod
-    def _genome_to_parameters(genome):
-        """Maps genome to a set of parameters"""
-        # Hardcoded for 5 residual blocks and 32 filters per conv
-        input_param_shapes = [(32, 3, 3, 3), (32)]
-        residual_block_param_shapes = [(32, 32, 3, 3), (32)] * 2 * NUM_RES_BLOCKS
-        policy_head_param_shapes = [(2, 32, 1, 1), (2), (64, 128), (64)]
-        shapes = input_param_shapes + residual_block_param_shapes + policy_head_param_shapes
-        matrices = []
-        for shape in shapes:
-            matrix = torch.from_numpy(genome[0 : np.prod(shape)]).reshape(shape)
-            matrices.append(matrix)
-            genome = genome[np.prod(shape) :]
-        return matrices
-
-    def get_genome(self):
-        return self._parameters_to_genome(self.net)
-
     def set_genome(self, genome):
-        matrices = self._genome_to_parameters(genome)
-        state_dict = self.net.state_dict()
-        for param_name, matrix in zip(state_dict, matrices):
-            with torch.no_grad():
-                state_dict[param_name] = matrix
+        """Sets the network parameters to the values given by the genome
+
+        Args:
+            genome: The genome -- a list of dictionaries, each of which has the keys "weight" and
+                "bias".
+        """
+        learnable_layers = [
+            m for m in self.net.modules() if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d)
+        ]
+        if len(learnable_layers) != len(genome):
+            raise ValueError(
+                f"The number of learnable layers in the model ({len(learnable_layers)}) is not "
+                f"equal to the number of chromosomes in the genome ({len(genome)})"
+            )
+        for layer, chromosome in zip(learnable_layers, genome):
+            layer.weight = nn.Parameter(chromosome["weight"])
+            layer.bias = nn.Parameter(chromosome["bias"])
 
 
 class ResidualTowerPolicy(nn.Module):

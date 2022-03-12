@@ -6,9 +6,8 @@ from genetic_algorithm.lineage import Lineage
 def main():
     config = {
         "pop_size": 25,
+        "num_childs": 20,
         "mutation_rate": 0.02,
-        "mutation_var": 0.1,
-        "crossover_rate": 0.9,
         "round_robin_rounds": 8,
         "placement_matches": 5,
         "adjustment_matches": 5,
@@ -19,7 +18,8 @@ def main():
         "elo_floor": 100,
     }
     lineage = Lineage(
-        abspath(join(dirname(__file__), "genetic_algorithm/lineages/res_tower/")), config=config
+        abspath(join(dirname(__file__), "genetic_algorithm/lineages/chromosome_test/")),
+        config=config,
     )
     while lineage.current_gen < 200:
         lineage.advance_generation()

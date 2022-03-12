@@ -1,8 +1,11 @@
 import tkinter as tk
 import numpy as np
+from os.path import abspath, join, dirname
+from agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
 from reversi.reversi_environment import ReversiEnvironment
 from agents.random_agent import RandomAgent
 from agents.naive_agent import NaiveAgent
+from genetic_algorithm.lineage import Lineage
 
 
 WHITE = 1
@@ -168,7 +171,15 @@ class GameWindow:
 
 
 def main():
-    agent = NaiveAgent(2)
+    path_to_lineage = abspath(
+        join(dirname(__file__), "genetic_algorithm/lineages/chromosome_test/")
+    )
+    lineage = Lineage(path_to_lineage)
+    pop = lineage.get_pop_from_gen(lineage.current_gen)
+    elos = [individual["elo"] for individual in pop.pop]
+    best_individual = pop.pop[np.argmax(elos)]
+    agent = ResidualTowerPolicyAgent(1)
+    agent.set_genome(best_individual["genome"])
     game_window = GameWindow(agent=agent)
     # TODO: Figure out a way to play with an AI. Maybe with tk.after()?
     tk.mainloop()

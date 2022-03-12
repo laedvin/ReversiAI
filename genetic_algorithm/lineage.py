@@ -1,8 +1,8 @@
 import os
 from os.path import abspath, join
 import json
-import itertools
-import random
+import torch
+from copy import deepcopy
 from pathlib import Path
 import glob
 from timeit import default_timer as timer
@@ -58,11 +58,10 @@ class Lineage:
                 json.dump(self.config, f, indent=2)
         else:
             self.config = {
-                "pop_size": 50,
+                "pop_size": 25,
+                "num_childs": 5,
                 "mutation_rate": 0.02,
-                "mutation_var": 0.1,
-                "crossover_rate": 0.9,
-                "round_robin_rounds": 2,
+                "round_robin_rounds": 8,
                 "placement_matches": 5,
                 "adjustment_matches": 5,
                 "elo_attractiveness": 20,
@@ -129,29 +128,53 @@ class Lineage:
         elos = [individual["elo"] for individual in self.current_pop.pop]
         average_elo = np.mean(elos)
         print(f"Average Elo for generation {self.current_gen} is {average_elo}")
-        print(f"The best individual was:\n{self.current_pop.pop[np.argmax(elos)]}")
-        print(f"The worst individual was:\n{self.current_pop.pop[np.argmin(elos)]}")
+        best = self.current_pop.pop[np.argmax(elos)]
+        worst = self.current_pop.pop[np.argmin(elos)]
+        print(
+            "The best individual was:\n"
+            f"elo: {best['elo']}, wins: {best['wins']}, losses: {best['losses']}, "
+            f"wins as white: {best['white']['wins']}, losses as white: {best['white']['losses']}, "
+            f"wins as black: {best['black']['wins']}, losses as black: {best['black']['losses']} "
+        )
+        print(
+            "The worst individual was:\n"
+            f"elo: {worst['elo']}, wins: {worst['wins']}, losses: {worst['losses']}, "
+            f"wins as white: {worst['white']['wins']}, losses as white: {worst['white']['losses']}, "
+            f"wins as black: {worst['black']['wins']}, losses as black: {worst['black']['losses']} "
+        )
 
     def advance_generation(self):
         average_elo = np.mean([individual["elo"] for individual in self.current_pop.pop])
         initial_elo = (average_elo + self.config["initial_elo"]) / 2
 
-        mating_pairs = self.select_mating_pairs()
-        new_genomes = [self.reproduce(*pair) for pair in mating_pairs]
-        new_genomes = list(itertools.chain(*new_genomes))
-        new_genomes = new_genomes[0 : self.config["pop_size"]]
+        # Find the top (pop_size - offspring) individuals by Elo
+        ids, elos = zip(*[(x["id"], x["elo"]) for x in self.current_pop.pop])
+        ids = np.array(list(ids))
+        elos = np.array(list(elos))
+        inds = (-elos).argsort()[0 : self.config["pop_size"] - self.config["num_childs"]]
+        sorted_ids = ids[inds]
+
+        print(f"Elos, descending order: {elos[(-elos).argsort()]}")
+
+        top_genomes = [self.current_pop.pop[i]["genome"] for i in sorted_ids]
+
+        mating_pairs = self.select_mating_pairs(self.config["num_childs"])
+        child_genomes = [self.reproduce(*pair) for pair in mating_pairs]
 
         self.current_gen += 1
 
+        # Should the top genomes keep their Elos?
         print(f"Creating new generation: {self.current_gen}")
         self.current_pop = Population(self.config, initial_elo=initial_elo)
-        self.current_pop.update_genome(new_genomes)
+        self.current_pop.update_genome(top_genomes + child_genomes)
 
         self.determine_population_elo()
         self.save_current_generation()
 
     def reproduce(self, id_a, id_b):
-        """Generates the genome of two children from two parents
+        """Generates the genome of a child from two parents.
+
+        This process includes chromosome selection and mutation
 
         Args:
             id_a: id of the first parent
@@ -159,28 +182,30 @@ class Lineage:
 
         Returns: The genome of the child
         """
-        # TODO: n crossover points
+
+        # Chromosome selection
         genome_a = self.current_pop.pop[id_a]["genome"]
         genome_b = self.current_pop.pop[id_b]["genome"]
+        parent_genomes = (genome_a, genome_b)
+        num_chromosomes = len(genome_a)
+        chromosome_choice = np.random.choice(a=[0, 1], size=(num_chromosomes,))
+        child_genome = [
+            deepcopy(parent_genomes[parent][chromosome])
+            for (chromosome, parent) in enumerate(chromosome_choice)
+        ]
 
-        if random.random() < self.config["crossover_rate"]:
-            crossover_point = random.randint(0, len(genome_a) - 1)
+        # Mutation. Change the values of some parameter to that of a newly initialized agent
+        # This will ensure that the mutated parameters are chosen from the correct distribution
+        random_genome = self.current_pop.initialize_agent().get_genome()
+        for chromosome, random_chromosome in zip(child_genome, random_genome):
+            mutated_weights = torch.rand(chromosome["weight"].shape) < self.config["mutation_rate"]
+            mutated_biases = torch.rand(chromosome["bias"].shape) < self.config["mutation_rate"]
+            chromosome["weight"][mutated_weights] = random_chromosome["weight"][mutated_weights]
+            chromosome["bias"][mutated_biases] = random_chromosome["bias"][mutated_biases]
 
-            offspring_a = np.concatenate((genome_a[0:crossover_point], genome_b[crossover_point:]))
-            offspring_b = np.concatenate((genome_b[0:crossover_point], genome_a[crossover_point:]))
-        else:
-            offspring_a = np.copy(genome_a)
-            offspring_b = np.copy(genome_b)
+        return child_genome
 
-        for idx, (a, b) in enumerate(zip(offspring_a, offspring_b)):
-            if random.random() < self.config["mutation_rate"]:
-                offspring_a[idx] = a + random.gauss(0, np.sqrt(self.config["mutation_var"]))
-            if random.random() < self.config["mutation_rate"]:
-                offspring_b[idx] = b + random.gauss(0, np.sqrt(self.config["mutation_var"]))
-
-        return offspring_a, offspring_b
-
-    def select_mating_pairs(self):
+    def select_mating_pairs(self, num_pairs):
         """Select which individuals should mate
 
         Picks the first half of a pair from a Boltzmann distribution using Elo
@@ -188,6 +213,9 @@ class Lineage:
 
         Picks the second half of a pair in the same way, but it can't repick
         the first half.
+
+        Args:
+            num_pairs: The number of pairs to pick
 
         Returns: A list of tuples containing the ids of the mating pairs
         """
@@ -203,7 +231,7 @@ class Lineage:
 
         print(f"Mating probability:\n{p}")
 
-        first_halfs = np.random.choice(ids, int(np.ceil(self.config["pop_size"] / 2)), p=p)
+        first_halfs = np.random.choice(ids, num_pairs, p=p)
         pairs = []
         for first_half in first_halfs:
             mask = np.ones(ids.size, dtype=bool)
