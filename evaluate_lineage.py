@@ -9,7 +9,7 @@ CONFIG = {
     "mutation_rate": 0.02,
     "mutation_var": 0.1,
     "round_robin_rounds": 5,
-    "control_matches": 10,
+    "control_matches": 20,
     "adjustment_matches": 5,
     "elo_attractiveness": 20,
     "k_factor_rr": 20,  # Round robin
@@ -18,23 +18,33 @@ CONFIG = {
     "elo_floor": 100,
 }
 
+MAX_EVALUATION_POP_SIZE = 20
+
 
 def main():
     """Evaluates all the generations in a lineage"""
     path_to_lineage = abspath(
-        join(dirname(__file__), "genetic_algorithm/lineages/chromosome_test/")
+        join(dirname(__file__), "genetic_algorithm/lineages/no_baseline_agents/")
     )
     lineage = Lineage(path_to_lineage)
-    CONFIG["pop_size"] = lineage.current_gen
 
+    # Decide which generations to evaluate
+    CONFIG["pop_size"] = min(lineage.current_gen, MAX_EVALUATION_POP_SIZE)
+
+    if CONFIG["pop_size"] == MAX_EVALUATION_POP_SIZE:
+        generations = np.round(np.linspace(0, lineage.current_gen, MAX_EVALUATION_POP_SIZE)).astype(
+            int
+        )
+    else:
+        generations = range(CONFIG["pop_size"])
     # Find the best individual from each generation
     best_individuals = []
-    for generation in range(lineage.current_gen):
+    for idx, generation in enumerate(generations):
         pop = lineage.get_pop_from_gen(generation)
         elos = [individual["elo"] for individual in pop.pop]
         best_individual = pop.pop[np.argmax(elos)]
         # Reset non-genome stats
-        best_individual["id"] = generation
+        best_individual["id"] = idx
         best_individual["elo"] = CONFIG["initial_elo"]
         best_individual["games"] = 0
         best_individual["wins"] = 0

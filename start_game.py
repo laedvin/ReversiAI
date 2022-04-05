@@ -30,7 +30,7 @@ class GameWindow:
         # Initialize the game board
         self.cell_size = 64
         self.text_height = self.cell_size
-        self.window = tk.Tk(className="bla")
+        self.window = tk.Tk(className="Reversi")
         self.canvas = tk.Canvas(
             self.window,
             bg="green",
@@ -172,16 +172,15 @@ class GameWindow:
 
 def main():
     path_to_lineage = abspath(
-        join(dirname(__file__), "genetic_algorithm/lineages/chromosome_test/")
+        join(dirname(__file__), "genetic_algorithm/lineages/no_baseline_agents/")
     )
     lineage = Lineage(path_to_lineage)
     pop = lineage.get_pop_from_gen(lineage.current_gen)
     elos = [individual["elo"] for individual in pop.pop]
     best_individual = pop.pop[np.argmax(elos)]
-    agent = ResidualTowerPolicyAgent(1)
+    agent = ResidualTowerPolicyAgent(2)
     agent.set_genome(best_individual["genome"])
     game_window = GameWindow(agent=agent)
-    # TODO: Figure out a way to play with an AI. Maybe with tk.after()?
     tk.mainloop()
 
 

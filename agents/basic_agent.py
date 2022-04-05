@@ -1,7 +1,8 @@
+from abc import ABC, abstractmethod
 from reversi.game_board import GameBoard
 
 
-class BasicAgent:
+class BasicAgent(ABC):
     def __init__(self, player=1):
         super(BasicAgent, self).__init__()
         self.game_board = GameBoard()
@@ -18,5 +19,6 @@ class BasicAgent:
         self.own_player = player
         self.opponent = 2 if self.own_player == 1 else 1
 
+    @abstractmethod
     def predict(self, state):
-        raise NotImplementedError("Agent doesn't have predictions properly implemented")
+        pass

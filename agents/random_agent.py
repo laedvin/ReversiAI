@@ -1,5 +1,4 @@
 from agents.basic_agent import BasicAgent
-from agents.basic_agent import BasicAgent
 import numpy as np
 
 

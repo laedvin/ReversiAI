@@ -9,8 +9,8 @@ def main():
         "num_childs": 20,
         "mutation_rate": 0.02,
         "round_robin_rounds": 8,
-        "placement_matches": 5,
-        "adjustment_matches": 5,
+        "placement_matches": 0,
+        "adjustment_matches": 0,
         "elo_attractiveness": 20,
         "k_factor_rr": 20,  # Round robin
         "k_factor_p": 40,  # Placement
@@ -18,10 +18,10 @@ def main():
         "elo_floor": 100,
     }
     lineage = Lineage(
-        abspath(join(dirname(__file__), "genetic_algorithm/lineages/chromosome_test/")),
+        abspath(join(dirname(__file__), "genetic_algorithm/lineages/test/")),
         config=config,
     )
-    while lineage.current_gen < 200:
+    while lineage.current_gen < 300:
         lineage.advance_generation()
         print(f"Saved generation {lineage.current_gen}")
 

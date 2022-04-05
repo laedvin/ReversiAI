@@ -67,7 +67,7 @@ class Lineage:
                 "elo_attractiveness": 20,
                 "k_factor_rr": 20,  # Round robin
                 "k_factor_p": 40,  # Placement
-                "initial_elo": 500,
+                "initial_elo": 1000,
                 "elo_floor": 100,
             }
             print("Creating new config file using default values.")
@@ -111,13 +111,16 @@ class Lineage:
             old_pop = self.get_pop_from_gen(self.current_gen - 1)
             old_elos = [individual["elo"] for individual in old_pop.pop]
             baseline_individual = old_pop.pop[np.argmax(old_elos)]
+
         print("Performing placement matches")
         self.current_pop.placement_matches(
             self.config["placement_matches"],
             baseline_individual=baseline_individual,
         )
+
         print("Performing round robin matches")
         self.current_pop.round_robin(self.config["round_robin_rounds"])
+
         print("Performing adjustment matches")
         self.current_pop.placement_matches(
             self.config["adjustment_matches"],
@@ -144,28 +147,26 @@ class Lineage:
         )
 
     def advance_generation(self):
-        average_elo = np.mean([individual["elo"] for individual in self.current_pop.pop])
-        initial_elo = (average_elo + self.config["initial_elo"]) / 2
-
         # Find the top (pop_size - offspring) individuals by Elo
         ids, elos = zip(*[(x["id"], x["elo"]) for x in self.current_pop.pop])
         ids = np.array(list(ids))
         elos = np.array(list(elos))
-        inds = (-elos).argsort()[0 : self.config["pop_size"] - self.config["num_childs"]]
-        sorted_ids = ids[inds]
+        elo_sorted_idx = (-elos).argsort()
+        elo_sorted_ids = ids[elo_sorted_idx]
+        num_survivors = self.config["pop_size"] - self.config["num_childs"]
 
-        print(f"Elos, descending order: {elos[(-elos).argsort()]}")
+        print(f"Population Elo, descending order: {elos[elo_sorted_idx]}")
 
-        top_genomes = [self.current_pop.pop[i]["genome"] for i in sorted_ids]
+        top_genomes = [self.current_pop.pop[i]["genome"] for i in elo_sorted_ids[0:num_survivors]]
 
+        # Create children
         mating_pairs = self.select_mating_pairs(self.config["num_childs"])
         child_genomes = [self.reproduce(*pair) for pair in mating_pairs]
 
         self.current_gen += 1
 
-        # Should the top genomes keep their Elos?
-        print(f"Creating new generation: {self.current_gen}")
-        self.current_pop = Population(self.config, initial_elo=initial_elo)
+        print(f"Creating generation {self.current_gen}")
+        self.current_pop = Population(self.config, initial_elo=self.config["initial_elo"])
         self.current_pop.update_genome(top_genomes + child_genomes)
 
         self.determine_population_elo()
@@ -228,8 +229,6 @@ class Lineage:
         beta = np.log(10) / 400 * elo_attractiveness
         z = np.sum(np.exp(beta * elos))
         p = np.exp(beta * elos) / z
-
-        print(f"Mating probability:\n{p}")
 
         first_halfs = np.random.choice(ids, num_pairs, p=p)
         pairs = []

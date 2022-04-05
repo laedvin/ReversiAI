@@ -3,12 +3,12 @@ import torch
 from torch import nn
 
 
-from agents.basic_agent import BasicAgent
+from agents.genetic_agent import GeneticAgent
 
 NUM_RES_BLOCKS = 2
 
 
-class ResidualTowerPolicyAgent(BasicAgent):
+class ResidualTowerPolicyAgent(GeneticAgent):
     """A neural network agent that..."""
 
     def __init__(self, player=1, use_cuda=False):
