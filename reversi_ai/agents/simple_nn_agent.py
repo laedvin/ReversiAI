@@ -3,10 +3,10 @@ import torch
 from torch import nn
 
 
-from agents.basic_agent import BasicAgent
+from reversi_ai.agents.basic_agent import Agent
 
 
-class SimpleNNAgent(BasicAgent):
+class SimpleNNAgent(Agent):
     """A simple neural network agent"""
 
     def __init__(self, player=1):

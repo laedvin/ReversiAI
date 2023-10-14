@@ -1,5 +1,5 @@
 import numpy as np
-from reversi.game_board import GameBoard
+from reversi_ai.reversi.game_board import GameBoard
 
 WHITE = 1
 BLACK = 2

@@ -2,11 +2,13 @@
 
 Reversi and some attempts to make an AI
 
-## Requirements
+## Installation
 
-Install the required requirements in the requirements.txt required to run the scripts with `pip` with the command
+Install virtual environment using `poetry`:
 
-`pip install -r requirements.txt`
+```{code:bash}
+poetry install
+```
 
 ## Ways to run the code
 
@@ -14,16 +16,11 @@ There are two kinds of main scripts: ones that start a training session and ones
 
 ### Play the game
 
+To play, use
 
-To play with two human players in the terminal (Inputs are coordinates separated by a space; I am not responsible for figuring out how the input coordinates translates to the shown game board)
-`python human_vs_human.py`
-
-To see the result of agents playing against each other (for specific configurations, see the script itself):
-`python agent_vs_agent.py`
-
-To play with two human players in a graphical application:
-`python start_game.py`
-
+```{code:bash}
+reversi-ai play
+```
 
 ### Train AI
 

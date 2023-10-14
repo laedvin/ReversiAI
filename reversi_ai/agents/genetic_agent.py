@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from agents.basic_agent import BasicAgent
+from reversi_ai.agents.basic_agent import Agent
 
 
-class GeneticAgent(BasicAgent):
+class GeneticAgent(Agent):
     def __init__(self, player=1):
         super(GeneticAgent, self).__init__(player)
 

@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "reversi-ai"
+version = "0.1.0"
+description = ""
+authors = ["Edvin Lam <edvin.lam.el@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.*"
+numpy = "^1.26.0"
+torch = "^2.1.0"
+click = "^8.1.7"
+
+[tool.poetry.scripts]
+reversi-ai = "reversi_ai.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100

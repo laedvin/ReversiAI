@@ -1,11 +1,9 @@
 import tkinter as tk
 import numpy as np
 from os.path import abspath, join, dirname
-from agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
-from reversi.reversi_environment import ReversiEnvironment
-from agents.random_agent import RandomAgent
-from agents.naive_agent import NaiveAgent
-from genetic_algorithm.lineage import Lineage
+from reversi_ai.reversi.reversi_environment import ReversiEnvironment
+from reversi_ai.agents.random_agent import RandomAgent
+from reversi_ai.agents.basic_agent import Agent
 
 
 WHITE = 1
@@ -15,7 +13,7 @@ MAP_NAME = {"1": "WHITE", "2": "BLACK"}
 
 
 class GameWindow:
-    def __init__(self, agent=None):
+    def __init__(self, agent: Agent = None):
         self.agent = agent
         if self.agent and self.agent.own_player == 1:
             self.agent_player = 1
@@ -170,19 +168,22 @@ class GameWindow:
         return next_player, game_result
 
 
-def main():
-    path_to_lineage = abspath(
-        join(dirname(__file__), "genetic_algorithm/lineages/no_baseline_agents/")
-    )
-    lineage = Lineage(path_to_lineage)
-    pop = lineage.get_pop_from_gen(lineage.current_gen)
-    elos = [individual["elo"] for individual in pop.pop]
-    best_individual = pop.pop[np.argmax(elos)]
-    agent = ResidualTowerPolicyAgent(2)
-    agent.set_genome(best_individual["genome"])
-    game_window = GameWindow(agent=agent)
+def init_agent(black: bool, identifier: str) -> Agent:
+    if identifier:
+        # path_to_lineage = abspath(
+        #    join(dirname(__file__), "genetic_algorithm/lineages/no_baseline_agents/")
+        # )
+        # lineage = Lineage(path_to_lineage)
+        # pop = lineage.get_pop_from_gen(lineage.current_gen)
+        # elos = [individual["elo"] for individual in pop.pop]
+        # best_individual = pop.pop[np.argmax(elos)]
+        # agent = ResidualTowerPolicyAgent(2)
+        # agent.set_genome(best_individual["genome"])
+        return RandomAgent(int(black) + 1)
+    else:
+        return RandomAgent(int(black) + 1)
+
+
+def play_game(agent: Agent | None = None):
+    GameWindow(agent=agent)
     tk.mainloop()
-
-
-if __name__ == "__main__":
-    main()

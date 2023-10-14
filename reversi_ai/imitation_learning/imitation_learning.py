@@ -9,7 +9,7 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch import nn
-from reversi.gameplay_utils import play_game_nn_train
+from reversi_ai.reversi.gameplay_utils import play_game_nn_train
 
 
 class ImitationSession:

@@ -7,7 +7,7 @@ from pathlib import Path
 import glob
 from timeit import default_timer as timer
 import numpy as np
-from genetic_algorithm.population import Population
+from reversi_ai.genetic_algorithm.population import Population
 
 
 class Lineage:

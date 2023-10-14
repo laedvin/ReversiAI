@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from reversi.game_board import GameBoard
+from reversi_ai.reversi.game_board import GameBoard
 
 
-class BasicAgent(ABC):
+class Agent(ABC):
     def __init__(self, player=1):
-        super(BasicAgent, self).__init__()
+        super(Agent, self).__init__()
         self.game_board = GameBoard()
         self.own_player = None
         self.opponent = None

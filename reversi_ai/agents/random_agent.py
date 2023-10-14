@@ -1,8 +1,8 @@
-from agents.basic_agent import BasicAgent
+from reversi_ai.agents.basic_agent import Agent
 import numpy as np
 
 
-class RandomAgent(BasicAgent):
+class RandomAgent(Agent):
     """
     This agent plays a random move.
     """

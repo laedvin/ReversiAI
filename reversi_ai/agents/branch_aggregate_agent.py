@@ -1,9 +1,9 @@
-from agents.basic_agent import BasicAgent
-from reversi.game_board import GameBoard
+from reversi_ai.agents.basic_agent import Agent
+from reversi_ai.reversi.game_board import GameBoard
 import numpy as np
 
 
-class BranchAggregateAgent(BasicAgent):
+class BranchAggregateAgent(Agent):
     """
     This agent plays the move that maximizes the score difference in its next
     turn, assuming an opponent that plays random moves.

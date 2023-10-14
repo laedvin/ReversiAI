@@ -3,10 +3,10 @@ import random
 import numpy as np
 from multiprocessing import Pool, cpu_count
 
-from reversi.gameplay_utils import play_game
-from agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
-from agents.random_agent import RandomAgent
-from agents.naive_agent import NaiveAgent
+from reversi_ai.reversi.gameplay_utils import play_game
+from reversi_ai.agents.residual_tower_policy_agent import ResidualTowerPolicyAgent
+from reversi_ai.agents.random_agent import RandomAgent
+from reversi_ai.agents.naive_agent import NaiveAgent
 
 
 NUM_CPUS = min(6, cpu_count())

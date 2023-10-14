@@ -1,5 +1,5 @@
 import torch
-from reversi.reversi_environment import ReversiEnvironment
+from reversi_ai.reversi.reversi_environment import ReversiEnvironment
 
 
 def play_game(white, black):

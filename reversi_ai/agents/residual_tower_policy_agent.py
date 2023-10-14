@@ -2,8 +2,7 @@ import numpy as np
 import torch
 from torch import nn
 
-
-from agents.genetic_agent import GeneticAgent
+from reversi_ai.agents.genetic_agent import GeneticAgent
 
 NUM_RES_BLOCKS = 2
 

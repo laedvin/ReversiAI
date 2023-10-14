@@ -1,9 +1,9 @@
-from reversi.game_board import GameBoard
-from agents.basic_agent import BasicAgent
+from reversi_ai.reversi.game_board import GameBoard
+from reversi_ai.agents.basic_agent import Agent
 import numpy as np
 
 
-class NDepthSearchAgent(BasicAgent):
+class NDepthSearchAgent(Agent):
     """This agent searches n layers deep
 
     n is the number of its own turns into the future the agent searches.
