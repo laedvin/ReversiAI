@@ -10,6 +10,12 @@ Install virtual environment using `poetry`:
 poetry install
 ```
 
+then, activate it with
+
+```{code:bash}
+poetry shell
+```
+
 ## Ways to run the code
 
 There are two kinds of main scripts: ones that start a training session and ones that let you or an AI agent play.
