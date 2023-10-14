@@ -1,5 +1,4 @@
 from os.path import abspath, join, dirname
-import deepdish as dd
 
 from imitation_learning.imitation_learning import ImitationSession
 from agents.simple_nn_agent import SimpleNNAgent
